@@ -2,15 +2,15 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>TrackMetal - Sistema de Rastreamento RFID</title>
+    <title>TrackMetal - Rastreamento por DataMatrix</title>
     <style>
-        :root { --primary: #003366; --secondary: #f39200; --bg: #f0f2f5; --white: #ffffff; }
+        :root { --primary: #022c54; --secondary: #f39200; --bg: #f0f2f5; --white: #ffffff; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; overflow: hidden; }
         
         /* Sidebar */
         nav { width: 260px; background: var(--primary); color: white; height: 100vh; padding: 25px; box-sizing: border-box; }
         nav h1 { font-size: 26px; color: var(--secondary); margin-bottom: 5px; letter-spacing: 1px; }
-        nav p { font-size: 12px; opacity: 0.7; margin-bottom: 40px; }
+        nav p { font-size: 11px; opacity: 0.8; margin-bottom: 40px; text-transform: uppercase; }
         .menu-item { padding: 15px; margin-bottom: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; display: flex; align-items: center; }
         .menu-item:hover { background: rgba(255,255,255,0.1); }
         .menu-item.active { background: var(--secondary); color: var(--primary); font-weight: bold; }
@@ -25,7 +25,7 @@
         /* Estilização Geral */
         .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
         .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .card h3 { margin: 0; color: #666; font-size: 14px; text-transform: uppercase; }
+        .card h3 { margin: 0; color: #666; font-size: 13px; text-transform: uppercase; }
         .card p { font-size: 32px; font-weight: bold; margin: 10px 0 0; color: var(--primary); }
 
         table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -35,79 +35,82 @@
         .bg-ok { background: #e1f7ec; color: #219653; }
         .bg-alert { background: #ffe9e9; color: #eb5757; }
 
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; }
+        .scanner-info { background: #e8f0fe; padding: 15px; border-radius: 8px; border-left: 5px solid #1a73e8; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <nav>
     <h1>TrackMetal</h1>
-    <p>LOGÍSTICA INDUSTRIAL TSEA</p>
+    <p>Marcação a Laser & DataMatrix | TSEA</p>
     
-    <div class="menu-item active" onclick="openTab(event, 'dashboard')">📊 Dashboard</div>
-    <div class="menu-item" onclick="openTab(event, 'consulta')">🔍 Consultar Peça</div>
-    <div class="menu-item" onclick="openTab(event, 'ordens')">📑 Ordens de Produção</div>
+    <div class="menu-item active" onclick="openTab(event, 'dashboard')">📊 Monitoramento</div>
+    <div class="menu-item" onclick="openTab(event, 'consulta')">🔍 Scan DataMatrix</div>
+    <div class="menu-item" onclick="openTab(event, 'ordens')">📑 Ordens (OPs)</div>
 </nav>
 
 <main>
     <div id="dashboard" class="tab-content active">
-        <h2>Monitoramento em Tempo Real</h2>
+        <h2>Fluxo de Produção - TSEA</h2>
         <div class="card-grid">
-            <div class="card"><h3>Em Corte</h3><p>14</p></div>
-            <div class="card"><h3>Em Usinagem</h3><p>09</p></div>
-            <div class="card"><h3>Em Soldagem</h3><p>06</p></div>
-            <div class="card"><h3>Em Montagem</h3><p>04</p></div>
+            <div class="card"><h3>Corte Laser</h3><p>18</p></div>
+            <div class="card"><h3>Usinagem</h3><p>11</p></div>
+            <div class="card)<h3>Soldagem</h3><p>07</p></div>
+            <div class="card"><h3>Montagem</h3><p>05</p></div>
         </div>
 
-        <h3>Últimas Movimentações (RFID)</h3>
+        <div class="scanner-info">
+            <strong>Último Scan Localizado:</strong> Código [DM-A102] detectado no setor de <strong>Soldagem</strong> às 14:45.
+        </div>
+
+        <h3>Histórico de Leituras Ópticas</h3>
         <table>
             <thead>
                 <tr>
-                    <th>Tag RFID</th>
-                    <th>Setor Atual</th>
-                    <th>ID da Peça</th>
-                    <th>Horário</th>
-                    <th>Status</th>
+                    <th>Código DataMatrix</th>
+                    <th>Setor</th>
+                    <th>Peça / Lote</th>
+                    <th>Data/Hora</th>
+                    <th>Integridade</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td>8829-X</td><td>Soldagem</td><td>P-450</td><td>14:28</td><td><span class="badge bg-ok">OK</span></td></tr>
-                <tr><td>8830-X</td><td>Usinagem</td><td>P-451</td><td>14:25</td><td><span class="badge bg-ok">OK</span></td></tr>
-                <tr><td>8827-X</td><td>Corte</td><td>P-448</td><td>14:20</td><td><span class="badge bg-alert">ALERTA</span></td></tr>
+                <tr><td>DM-A102</td><td>Soldagem</td><td>Tampa Transformador</td><td>14:45</td><td><span class="badge bg-ok">100% (Lida)</span></td></tr>
+                <tr><td>DM-A105</td><td>Usinagem</td><td>Suporte Metálico</td><td>14:38</td><td><span class="badge bg-ok">100% (Lida)</span></td></tr>
+                <tr><td>DM-B098</td><td>Corte</td><td>Base Principal</td><td>14:22</td><td><span class="badge bg-alert">Erro de Fluxo</span></td></tr>
             </tbody>
         </table>
     </div>
 
     <div id="consulta" class="tab-content">
-        <h2>Rastreabilidade de Item</h2>
-        <p>Digite o código da tag RFID ou ID da peça para ver o histórico completo.</p>
-        <input type="text" placeholder="Ex: 8829-X...">
-        <div class="card" style="border-left: 5px solid var(--secondary);">
-            <p style="font-size: 16px;">Resultado da Busca: <strong>Peça P-450 (Transformador Médio)</strong></p>
-            <hr>
+        <h2>Rastreabilidade via DataMatrix</h2>
+        <p>Aponte o leitor óptico para o código gravado a laser na peça.</p>
+        <input type="text" placeholder="Aguardando leitura do scanner..." style="width: 100%; padding: 15px; border: 2px solid var(--primary); border-radius: 8px;">
+        
+        <div class="card" style="margin-top: 20px;">
+            <p><strong>Detalhes da Gravação Laser:</strong></p>
             <ul>
-                <li><strong>10:00</strong> - Entrada no sistema (Corte)</li>
-                <li><strong>11:30</strong> - Processamento concluído (Usinagem)</li>
-                <li><strong>14:28</strong> - Detectado no setor (Soldagem)</li>
+                <li><strong>Profundidade da Marcação:</strong> 0.15mm</li>
+                <li><strong>Data da Gravação:</strong> 15/04/2026</li>
+                <li><strong>Responsável:</strong> Célula de Corte 02</li>
             </ul>
         </div>
     </div>
 
     <div id="ordens" class="tab-content">
-        <h2>Ordens de Produção (OPs)</h2>
+        <h2>Gestão de Ordens de Produção</h2>
         <table>
             <thead>
                 <tr>
-                    <th>Nº da Ordem</th>
+                    <th>OP</th>
                     <th>Cliente</th>
-                    <th>Prazo</th>
-                    <th>Progresso</th>
+                    <th>Peças Marcadas</th>
+                    <th>Status</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td>OP-2026-001</td><td>Energia Brasil</td><td>20/04/2026</td><td>75%</td></tr>
-                <tr><td>OP-2026-002</td><td>Indústrias Norte</td><td>25/04/2026</td><td>40%</td></tr>
-                <tr><td>OP-2026-003</td><td>Cemig Dist.</td><td>02/05/2026</td><td>10%</td></tr>
+                <tr><td>OP-1540</td><td>Cemig</td><td>45/50</td><td>Em andamento</td></tr>
+                <tr><td>OP-1541</td><td>Energia SP</td><td>12/12</td><td>Concluída</td></tr>
             </tbody>
         </table>
     </div>
@@ -115,20 +118,15 @@
 
 <script>
     function openTab(evt, tabName) {
-        // Esconder todos os conteúdos
         var i, tabcontent, menuitems;
         tabcontent = document.getElementsByClassName("tab-content");
         for (i = 0; i < tabcontent.length; i++) {
             tabcontent[i].classList.remove("active");
         }
-
-        // Remover a classe 'active' de todos os botões do menu
         menuitems = document.getElementsByClassName("menu-item");
         for (i = 0; i < menuitems.length; i++) {
             menuitems[i].classList.remove("active");
         }
-
-        // Mostrar a aba atual e marcar o botão como ativo
         document.getElementById(tabName).classList.add("active");
         evt.currentTarget.classList.add("active");
     }
