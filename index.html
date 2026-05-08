@@ -4,38 +4,68 @@
     <meta charset="UTF-8">
     <title>TrackMetal - Rastreamento por DataMatrix</title>
     <style>
-        :root { --primary: #022c54; --secondary: #f39200; --bg: #f0f2f5; --white: #ffffff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; overflow: hidden; }
+        :root { --primary: #444444; --secondary: #777777; --accent: #a0c4ff; --bg: #ffffff; --white: #ffffff; --light-gray: #f9f9f9; --border: #e5e5e5; --text: #444444; }
+        .dark { --primary: #ffffff; --secondary: #cccccc; --accent: #5a8eff; --bg: #222222; --white: #333333; --light-gray: #444444; --border: #555555; --text: #ffffff; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; overflow: hidden; color: var(--text); }
         
         /* Sidebar */
-        nav { width: 260px; background: var(--primary); color: white; height: 100vh; padding: 25px; box-sizing: border-box; }
-        nav h1 { font-size: 26px; color: var(--secondary); margin-bottom: 5px; letter-spacing: 1px; }
-        nav p { font-size: 11px; opacity: 0.8; margin-bottom: 40px; text-transform: uppercase; }
-        .menu-item { padding: 15px; margin-bottom: 10px; cursor: pointer; border-radius: 8px; transition: 0.3s; display: flex; align-items: center; }
-        .menu-item:hover { background: rgba(255,255,255,0.1); }
-        .menu-item.active { background: var(--secondary); color: var(--primary); font-weight: bold; }
+        nav { width: 260px; background: var(--light-gray); color: var(--primary); height: 100vh; padding: 25px; box-sizing: border-box; border-right: 1px solid var(--border); }
+        nav h1 { font-size: 26px; color: var(--accent); margin-bottom: 5px; letter-spacing: 1px; }
+        nav p { font-size: 11px; opacity: 0.7; margin-bottom: 40px; text-transform: uppercase; }
+        .menu-item { padding: 15px; margin-bottom: 10px; cursor: pointer; border-radius: 4px; transition: 0.2s; display: flex; align-items: center; border: 1px solid transparent; }
+        .menu-item:hover { background: var(--white); border-color: var(--border); }
+        .menu-item.active { background: var(--accent); border-color: var(--accent); color: var(--white); font-weight: 500; }
 
         /* Área de Conteúdo */
-        main { flex: 1; height: 100vh; overflow-y: auto; padding: 30px; box-sizing: border-box; }
-        .tab-content { display: none; animation: fadeIn 0.4s; }
+        main { flex: 1; height: 100vh; overflow-y: auto; padding: 30px; box-sizing: border-box; position: relative; }
+        .theme-toggle { position: absolute; top: 10px; right: 10px; font-size: 20px; cursor: pointer; background: var(--light-gray); border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; filter: grayscale(100%); }
+        .theme-toggle.rotating { animation: rotateToggle 0.5s ease-in-out; }
+        @keyframes rotateToggle { 0% { transform: scale(1) rotate(0deg); } 25% { transform: scale(1.3) rotate(90deg); } 50% { transform: scale(0.9) rotate(180deg); } 75% { transform: scale(1.1) rotate(270deg); } 100% { transform: scale(1) rotate(360deg); } }
+        .theme-toggle:hover { background: var(--accent); }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Estilização Geral */
-        .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        .card { background: var(--white); padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .card h3 { margin: 0; color: #666; font-size: 13px; text-transform: uppercase; }
-        .card p { font-size: 32px; font-weight: bold; margin: 10px 0 0; color: var(--primary); }
+        .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 20px; }
+        .card { background: var(--white); padding: 20px; border-radius: 6px; border: 1px solid var(--border); transition: border-color 0.2s; cursor: pointer; }
+        .card:hover { border-color: var(--accent); }
+        .card.selected { border-color: var(--accent); background: var(--light-gray); }
+        .card h3 { margin: 0; color: var(--primary); font-size: 13px; text-transform: uppercase; font-weight: 500; }
+        .card p { font-size: 32px; font-weight: 600; margin: 10px 0 0; color: var(--primary); }
+        .monitoring-select { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+        .monitoring-select label { font-weight: 500; color: var(--primary); }
+        .monitoring-select select { flex: 1; padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; background: var(--white); color: var(--primary); }
+        .dark .monitoring-select select { color: var(--text); }
+        .input-field { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; margin-top: 8px; box-sizing: border-box; background: var(--white); color: var(--primary); }
+        .dark .input-field { color: var(--text); }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 20px; }
+        .form-row { display: flex; flex-direction: column; gap: 4px; }
+        .button { display: inline-flex; align-items: center; justify-content: center; padding: 10px 16px; border: 1px solid var(--border); border-radius: 4px; background: var(--white); color: var(--primary); font-weight: 500; cursor: pointer; margin-top: 15px; transition: background 0.2s; }
+        .button:hover { background: var(--accent); color: var(--white); }
+        .action-button { padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; color: var(--primary); font-size: 12px; background: var(--white); }
+        .action-button.edit { border-color: var(--secondary); }
+        .action-button.save { border-color: #28a745; color: #28a745; }
+        .action-button.cancel { border-color: #6c757d; color: #6c757d; }
+        .action-buttons { display: flex; gap: 6px; }
+        .row-saved { animation: saveFlash 0.5s ease-in-out; }
+        @keyframes saveFlash { 0% { background-color: #e8f5e8; } 100% { background-color: transparent; } }
+        .edit-closing { animation: editClose 0.3s ease-in-out; }
+        @keyframes editClose { 0% { opacity: 1; } 100% { opacity: 0.8; } }
+        .details-panel { display: none; background: var(--white); padding: 16px; border-radius: 6px; border: 1px solid var(--border); margin-top: 20px; }
+        .details-panel.active { display: block; }
 
-        table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        th { background: #f8f9fa; padding: 15px; text-align: left; color: #444; }
-        td { padding: 15px; border-bottom: 1px solid #eee; }
-        .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .bg-ok { background: #e1f7ec; color: #219653; }
-        .bg-alert { background: #ffe9e9; color: #eb5757; }
+        table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: 6px; border: 1px solid var(--border); overflow: hidden; }
+        th { background: var(--light-gray); padding: 12px; text-align: left; color: var(--primary); font-weight: 500; border-bottom: 1px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); }
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+        .bg-ok { background: #e8f5e8; color: #28a745; border: 1px solid #c3e6cb; }
+        .bg-alert { background: #f8d7da; color: #dc3545; border: 1px solid #f5c6cb; }
+        .dark .bg-ok { background: #1e3a1e; color: #4ade80; border: 1px solid #2d5a2d; }
+        .dark .bg-alert { background: #3a1e1e; color: #f87171; border: 1px solid #5a2d2d; }
 
-        .scanner-info { background: #e8f0fe; padding: 15px; border-radius: 8px; border-left: 5px solid #1a73e8; margin-bottom: 20px; }
+        .scanner-info { background: var(--light-gray); padding: 12px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -44,27 +74,57 @@
     <h1>TrackMetal</h1>
     <p>Marcação a Laser & DataMatrix | TSEA</p>
     
-    <div class="menu-item active" onclick="openTab(event, 'dashboard')">📊 Monitoramento</div>
-    <div class="menu-item" onclick="openTab(event, 'consulta')">🔍 Scan DataMatrix</div>
-    <div class="menu-item" onclick="openTab(event, 'ordens')">📑 Ordens (OPs)</div>
+    <div class="menu-item active" onclick="openTab(event, 'dashboard')">Monitoramento</div>
+    <div class="menu-item" onclick="openTab(event, 'consulta')">Scan DataMatrix</div>
+    <div class="menu-item" onclick="openTab(event, 'ordens')">Ordens (OPs)</div>
 </nav>
 
 <main>
+    <div id="themeToggle" class="theme-toggle" onclick="toggleTheme()">☀️</div>
     <div id="dashboard" class="tab-content active">
         <h2>Fluxo de Produção - TSEA</h2>
         <div class="card-grid">
-            <div class="card"><h3>Corte Laser</h3><p>18</p></div>
-            <div class="card"><h3>Usinagem</h3><p>11</p></div>
-            <div class="card)<h3>Soldagem</h3><p>07</p></div>
-            <div class="card"><h3>Montagem</h3><p>05</p></div>
+            <div id="cardCorteLaser" class="card selected" onclick="selectMonitoringArea('Corte Laser')"><h3>Corte Laser</h3><p id="countCorteLaser">0</p></div>
+            <div id="cardUsinagem" class="card" onclick="selectMonitoringArea('Usinagem')"><h3>Usinagem</h3><p id="countUsinagem">0</p></div>
+            <div id="cardSoldagem" class="card" onclick="selectMonitoringArea('Soldagem')"><h3>Soldagem</h3><p id="countSoldagem">0</p></div>
+            <div id="cardMontagem" class="card" onclick="selectMonitoringArea('Montagem')"><h3>Montagem</h3><p id="countMontagem">0</p></div>
         </div>
 
-        <div class="scanner-info">
+        <div class="monitoring-select">
+            <label for="monitoringArea">Selecionar monitoramento:</label>
+            <select id="monitoringArea" onchange="selectMonitoringArea(this.value)">
+                <option value="Corte Laser">Corte Laser</option>
+                <option value="Usinagem">Usinagem</option>
+                <option value="Soldagem">Soldagem</option>
+                <option value="Montagem">Montagem</option>
+            </select>
+        </div>
+
+        <div class="scanner-info" id="monitoringSummary">
             <strong>Último Scan Localizado:</strong> Código [DM-A102] detectado no setor de <strong>Soldagem</strong> às 14:45.
         </div>
 
+        <div>
+            <h3>Monitoramento Específico</h3>
+            <p>Veja dados detalhados do rastreamento e desempenho por área. Esta visualização mostra status atual, última leitura e ocorrências críticas.</p>
+            <button class="button" onclick="toggleDetails()">Ver informações mais específicas</button>
+
+            <div id="monitoringDetails" class="details-panel">
+                <h4>Dados Avançados de Monitoramento</h4>
+                <div id="monitoringDetailsContent">
+                    <p><strong>Setor selecionado:</strong> Soldagem</p>
+                    <p><strong>Total de leituras:</strong> 1</p>
+                    <p><strong>Última leitura:</strong> DM-A102 às 14:45</p>
+                    <p><strong>Status geral:</strong> Em produção</p>
+                    <ul>
+                        <li>DM-A102 - Tampa Transformador - 100% (Lida)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <h3>Histórico de Leituras Ópticas</h3>
-        <table>
+        <table id="historyTable">
             <thead>
                 <tr>
                     <th>Código DataMatrix</th>
@@ -72,12 +132,10 @@
                     <th>Peça / Lote</th>
                     <th>Data/Hora</th>
                     <th>Integridade</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td>DM-A102</td><td>Soldagem</td><td>Tampa Transformador</td><td>14:45</td><td><span class="badge bg-ok">100% (Lida)</span></td></tr>
-                <tr><td>DM-A105</td><td>Usinagem</td><td>Suporte Metálico</td><td>14:38</td><td><span class="badge bg-ok">100% (Lida)</span></td></tr>
-                <tr><td>DM-B098</td><td>Corte</td><td>Base Principal</td><td>14:22</td><td><span class="badge bg-alert">Erro de Fluxo</span></td></tr>
             </tbody>
         </table>
     </div>
@@ -85,7 +143,7 @@
     <div id="consulta" class="tab-content">
         <h2>Rastreabilidade via DataMatrix</h2>
         <p>Aponte o leitor óptico para o código gravado a laser na peça.</p>
-        <input type="text" placeholder="Aguardando leitura do scanner..." style="width: 100%; padding: 15px; border: 2px solid var(--primary); border-radius: 8px;">
+        <input id="scannerInput" class="input-field" type="text" placeholder="Aguardando leitura do scanner...">
         
         <div class="card" style="margin-top: 20px;">
             <p><strong>Detalhes da Gravação Laser:</strong></p>
@@ -95,28 +153,95 @@
                 <li><strong>Responsável:</strong> Célula de Corte 02</li>
             </ul>
         </div>
+
+        <h3>Adicionar nova leitura</h3>
+        <div class="form-grid">
+            <div class="form-row">
+                <label for="scanCodigo">Código DataMatrix</label>
+                <input id="scanCodigo" class="input-field" type="text" placeholder="DM-A123">
+            </div>
+            <div class="form-row">
+                <label for="scanSetor">Setor</label>
+                <select id="scanSetor" class="input-field">
+                    <option value="Corte Laser">Corte Laser</option>
+                    <option value="Usinagem">Usinagem</option>
+                    <option value="Soldagem">Soldagem</option>
+                    <option value="Montagem">Montagem</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="scanPeca">Peça / Lote</label>
+                <input id="scanPeca" class="input-field" type="text" placeholder="Tampa Transformador">
+            </div>
+            <div class="form-row">
+                <label for="scanIntegridade">Integridade</label>
+                <select id="scanIntegridade" class="input-field">
+                    <option value="100% (Lida)">100% (Lida)</option>
+                    <option value="Erro de Fluxo">Erro de Fluxo</option>
+                    <option value="Leitura fraca">Leitura fraca</option>
+                </select>
+            </div>
+        </div>
+        <button class="button" onclick="addScanEntry()">Adicionar Scan DataMatrix</button>
     </div>
 
     <div id="ordens" class="tab-content">
         <h2>Gestão de Ordens de Produção</h2>
-        <table>
+        <div class="form-grid">
+            <div class="form-row">
+                <label for="orderOp">OP</label>
+                <input id="orderOp" class="input-field" type="text" placeholder="OP-1542">
+            </div>
+            <div class="form-row">
+                <label for="orderCliente">Cliente</label>
+                <input id="orderCliente" class="input-field" type="text" placeholder="Cliente XYZ">
+            </div>
+            <div class="form-row">
+                <label for="orderPecas">Peças Marcadas</label>
+                <input id="orderPecas" class="input-field" type="text" placeholder="0/50">
+            </div>
+            <div class="form-row">
+                <label for="orderStatus">Status</label>
+                <select id="orderStatus" class="input-field">
+                    <option value="Em andamento">Em andamento</option>
+                    <option value="Concluída">Concluída</option>
+                    <option value="Pausada">Pausada</option>
+                </select>
+            </div>
+        </div>
+        <button class="button" onclick="addOrderEntry()">Adicionar Ordem</button>
+        <table id="ordersTable">
             <thead>
                 <tr>
                     <th>OP</th>
                     <th>Cliente</th>
                     <th>Peças Marcadas</th>
                     <th>Status</th>
+                    <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td>OP-1540</td><td>Cemig</td><td>45/50</td><td>Em andamento</td></tr>
-                <tr><td>OP-1541</td><td>Energia SP</td><td>12/12</td><td>Concluída</td></tr>
             </tbody>
         </table>
     </div>
 </main>
 
 <script>
+    var monitoringData = {
+        'Corte Laser': {
+            code: 'DM-B098', setor: 'Corte', pending: 0, time: '14:22', status: 'Aguardando inspeção', etapa: 'Corte concluído, preparando para usinagem', anomalies: '1 alerta de fluxo detectado no último lote'
+        },
+        'Usinagem': {
+            code: 'DM-A105', setor: 'Usinagem', pending: 0, time: '14:38', status: 'Em processamento', etapa: 'Usinagem em andamento, peças com tolerância normal', anomalies: 'Nenhuma anomalia detectada'
+        },
+        'Soldagem': {
+            code: 'DM-A102', setor: 'Soldagem', pending: 0, time: '14:45', status: 'Em produção', etapa: 'Concluindo soldagem e inspeção óptica', anomalies: 'Peça com leitura completa; sem falhas'
+        },
+        'Montagem': {
+            code: 'DM-A110', setor: 'Montagem', pending: 0, time: '14:52', status: 'Pronto para montagem final', etapa: 'Peças recebidas do soldador e aguardando encaixe', anomalies: 'Nenhuma anomalia registrada'
+        }
+    };
+
     function openTab(evt, tabName) {
         var i, tabcontent, menuitems;
         tabcontent = document.getElementsByClassName("tab-content");
@@ -130,6 +255,384 @@
         document.getElementById(tabName).classList.add("active");
         evt.currentTarget.classList.add("active");
     }
+
+    function selectMonitoringArea(area) {
+        var cards = document.querySelectorAll('.card-grid .card');
+        cards.forEach(function(card) {
+            card.classList.toggle('selected', card.textContent.trim().startsWith(area));
+        });
+        var select = document.getElementById('monitoringArea');
+        select.value = area;
+        var data = monitoringData[area];
+        var summary = document.getElementById('monitoringSummary');
+        summary.innerHTML = '<strong>Último Scan Localizado:</strong> Código [' + data.code + '] detectado no setor de <strong>' + data.setor + '</strong> às ' + data.time + '.';
+        updateMonitoringDetails(area);
+    }
+
+    function updateMonitoringDetails(area) {
+        var table = document.getElementById('historyTable');
+        var rows = table.querySelectorAll('tbody tr');
+        var sectorScans = [];
+        rows.forEach(function(row) {
+            var cells = row.cells;
+            if (cells[1].textContent === area) {
+                sectorScans.push({
+                    code: cells[0].textContent,
+                    peca: cells[2].textContent,
+                    time: cells[3].textContent,
+                    status: cells[4].textContent
+                });
+            }
+        });
+        var content = document.getElementById('monitoringDetailsContent');
+        if (sectorScans.length === 0) {
+            content.innerHTML = '<p><strong>Setor selecionado:</strong> ' + area + '</p><p>Nenhuma leitura encontrada para este setor.</p>';
+        } else {
+            var lastScan = sectorScans[sectorScans.length - 1];
+            var okCount = sectorScans.filter(s => s.status.includes('100%')).length;
+            var alertCount = sectorScans.length - okCount;
+            content.innerHTML = '<p><strong>Setor selecionado:</strong> ' + area + '</p>' +
+                '<p><strong>Total de leituras:</strong> ' + sectorScans.length + '</p>' +
+                '<p><strong>Última leitura:</strong> ' + lastScan.code + ' às ' + lastScan.time + '</p>' +
+                '<p><strong>Status geral:</strong> ' + (alertCount > 0 ? 'Alertas detectados' : 'Tudo OK') + '</p>' +
+                '<ul>' + sectorScans.map(s => '<li>' + s.code + ' - ' + s.peca + ' - ' + s.status + '</li>').join('') + '</ul>';
+        }
+    }
+
+    function addHistoryActionsToAllRows() {
+        var rows = document.querySelectorAll('#historyTable tbody tr');
+        rows.forEach(function(row) {
+            if (!row.cells[5] || row.cells[5].innerHTML.trim() === '') {
+                row.cells[5].innerHTML = '';
+                row.cells[5].appendChild(createHistoryActions(row));
+            }
+        });
+    }
+
+    function createHistoryActions(row) {
+        var wrapper = document.createElement('div');
+        wrapper.className = 'action-buttons';
+        var editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'action-button edit';
+        editButton.textContent = 'Editar';
+        editButton.onclick = function() {
+            startHistoryEdit(row);
+        };
+        wrapper.appendChild(editButton);
+        return wrapper;
+    }
+
+    function startHistoryEdit(row) {
+        if (row.dataset.editing === 'true') return;
+        row.dataset.editing = 'true';
+        var cells = row.cells;
+        for (var i = 0; i < 5; i++) {
+            var value = cells[i].textContent;
+            if (i === 1) { // Setor
+                var select = document.createElement('select');
+                select.className = 'input-field';
+                ['Corte Laser', 'Usinagem', 'Soldagem', 'Montagem'].forEach(function(optionValue) {
+                    var option = document.createElement('option');
+                    option.value = optionValue;
+                    option.textContent = optionValue;
+                    if (optionValue === value) option.selected = true;
+                    select.appendChild(option);
+                });
+                cells[i].innerHTML = '';
+                cells[i].appendChild(select);
+            } else if (i === 4) { // Integridade
+                var select = document.createElement('select');
+                select.className = 'input-field';
+                ['100% (Lida)', 'Erro de Fluxo', 'Leitura fraca'].forEach(function(optionValue) {
+                    var option = document.createElement('option');
+                    option.value = optionValue;
+                    option.textContent = optionValue;
+                    if (value.includes(optionValue)) option.selected = true;
+                    select.appendChild(option);
+                });
+                cells[i].innerHTML = '';
+                cells[i].appendChild(select);
+            } else {
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'input-field';
+                input.value = value;
+                cells[i].innerHTML = '';
+                cells[i].appendChild(input);
+            }
+        }
+        var actionCell = row.cells[5];
+        actionCell.innerHTML = '';
+        var saveButton = document.createElement('button');
+        saveButton.type = 'button';
+        saveButton.className = 'action-button save';
+        saveButton.textContent = 'Salvar';
+        saveButton.onclick = function() {
+            finishHistoryEdit(row);
+        };
+        var cancelButton = document.createElement('button');
+        cancelButton.type = 'button';
+        cancelButton.className = 'action-button cancel';
+        cancelButton.textContent = 'Cancelar';
+        cancelButton.onclick = function() {
+            cancelHistoryEdit(row);
+        };
+        var wrapper = document.createElement('div');
+        wrapper.className = 'action-buttons';
+        wrapper.appendChild(saveButton);
+        wrapper.appendChild(cancelButton);
+        actionCell.appendChild(wrapper);
+    }
+
+    function finishHistoryEdit(row) {
+        var cells = row.cells;
+        var values = [];
+        for (var i = 0; i < 5; i++) {
+            var input = cells[i].querySelector('input, select');
+            values.push(input.value.trim());
+        }
+        if (!values[0] || !values[1] || !values[2] || !values[3]) {
+            alert('Preencha todos os campos antes de salvar.');
+            return;
+        }
+        row.classList.add('edit-closing');
+        setTimeout(function() {
+            for (var i = 0; i < 4; i++) {
+                cells[i].textContent = values[i];
+            }
+            var badge = document.createElement('span');
+            badge.className = 'badge ' + (values[4] === '100% (Lida)' ? 'bg-ok' : 'bg-alert');
+            badge.textContent = values[4];
+            cells[4].innerHTML = '';
+            cells[4].appendChild(badge);
+            row.dataset.editing = 'false';
+            row.cells[5].innerHTML = '';
+            row.cells[5].appendChild(createHistoryActions(row));
+            row.classList.remove('edit-closing');
+            row.classList.add('row-saved');
+            setTimeout(function() {
+                row.classList.remove('row-saved');
+                updateMonitoringDetails(document.getElementById('monitoringArea').value);
+            }, 600);
+        }, 400);
+    }
+
+    function cancelHistoryEdit(row) {
+        var cells = row.cells;
+        for (var i = 0; i < 5; i++) {
+            var current = cells[i].querySelector('input, select');
+            if (current) {
+                if (i === 4) {
+                    var badge = document.createElement('span');
+                    badge.className = 'badge ' + (current.value === '100% (Lida)' ? 'bg-ok' : 'bg-alert');
+                    badge.textContent = current.value;
+                    cells[i].innerHTML = '';
+                    cells[i].appendChild(badge);
+                } else {
+                    cells[i].textContent = current.defaultValue || current.value;
+                }
+            }
+        }
+        row.dataset.editing = 'false';
+        row.cells[5].innerHTML = '';
+        row.cells[5].appendChild(createHistoryActions(row));
+    }
+
+    function addScanEntry() {
+        var codigo = document.getElementById('scanCodigo').value.trim();
+        var setor = document.getElementById('scanSetor').value;
+        var peca = document.getElementById('scanPeca').value.trim();
+        var integridade = document.getElementById('scanIntegridade').value;
+        if (!codigo || !peca) {
+            alert('Preencha todos os campos para adicionar a leitura.');
+            return;
+        }
+        var now = new Date();
+        var hora = now.getDate().toString().padStart(2, '0') + '/' + (now.getMonth() + 1).toString().padStart(2, '0') + '/' + now.getFullYear() + ' ' + now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        var table = document.querySelector('#dashboard table tbody');
+        var row = table.insertRow();
+        row.insertCell(0).textContent = codigo;
+        row.insertCell(1).textContent = setor;
+        row.insertCell(2).textContent = peca;
+        row.insertCell(3).textContent = hora;
+        var cellStatus = row.insertCell(4);
+        var badge = document.createElement('span');
+        badge.className = 'badge ' + (integridade === '100% (Lida)' ? 'bg-ok' : 'bg-alert');
+        badge.textContent = integridade;
+        cellStatus.appendChild(badge);
+        var actionCell = row.insertCell(5);
+        actionCell.appendChild(createHistoryActions(row));
+        document.getElementById('scanCodigo').value = '';
+        document.getElementById('scanPeca').value = '';
+        document.getElementById('scanIntegridade').value = '100% (Lida)';
+        updateMonitoringDetails(document.getElementById('monitoringArea').value);
+    }
+
+    function addOrderEntry() {
+        var op = document.getElementById('orderOp').value.trim();
+        var cliente = document.getElementById('orderCliente').value.trim();
+        var pecas = document.getElementById('orderPecas').value.trim();
+        var status = document.getElementById('orderStatus').value;
+        if (!op || !cliente || !pecas) {
+            alert('Preencha todos os campos para adicionar a ordem.');
+            return;
+        }
+        var table = document.querySelector('#ordersTable tbody');
+        var row = table.insertRow();
+        row.insertCell(0).textContent = op;
+        row.insertCell(1).textContent = cliente;
+        row.insertCell(2).textContent = pecas;
+        row.insertCell(3).textContent = status;
+        var actionCell = row.insertCell(4);
+        actionCell.appendChild(createOrderActions(row));
+        document.getElementById('orderOp').value = '';
+        document.getElementById('orderCliente').value = '';
+        document.getElementById('orderPecas').value = '';
+        document.getElementById('orderStatus').value = 'Em andamento';
+    }
+
+    function createOrderActions(row) {
+        var wrapper = document.createElement('div');
+        wrapper.className = 'action-buttons';
+        var editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'action-button edit';
+        editButton.textContent = 'Editar';
+        editButton.onclick = function() {
+            startOrderEdit(row);
+        };
+        wrapper.appendChild(editButton);
+        return wrapper;
+    }
+
+    function startOrderEdit(row) {
+        if (row.dataset.editing === 'true') return;
+        row.dataset.editing = 'true';
+        var cells = row.cells;
+        for (var i = 0; i < 4; i++) {
+            if (i === 0) continue; // OP não é editável
+            var value = cells[i].textContent;
+            if (i === 3) {
+                var select = document.createElement('select');
+                select.className = 'input-field';
+                ['Em andamento', 'Concluída', 'Pausada'].forEach(function(optionValue) {
+                    var option = document.createElement('option');
+                    option.value = optionValue;
+                    option.textContent = optionValue;
+                    if (optionValue === value) option.selected = true;
+                    select.appendChild(option);
+                });
+                cells[i].innerHTML = '';
+                cells[i].appendChild(select);
+            } else {
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'input-field';
+                input.value = value;
+                cells[i].innerHTML = '';
+                cells[i].appendChild(input);
+            }
+        }
+        var actionCell = row.cells[4];
+        actionCell.innerHTML = '';
+        var saveButton = document.createElement('button');
+        saveButton.type = 'button';
+        saveButton.className = 'action-button save';
+        saveButton.textContent = 'Salvar';
+        saveButton.onclick = function() {
+            finishOrderEdit(row);
+        };
+        var cancelButton = document.createElement('button');
+        cancelButton.type = 'button';
+        cancelButton.className = 'action-button cancel';
+        cancelButton.textContent = 'Cancelar';
+        cancelButton.onclick = function() {
+            cancelOrderEdit(row);
+        };
+        var wrapper = document.createElement('div');
+        wrapper.className = 'action-buttons';
+        wrapper.appendChild(saveButton);
+        wrapper.appendChild(cancelButton);
+        actionCell.appendChild(wrapper);
+    }
+
+    function finishOrderEdit(row) {
+        var cells = row.cells;
+        var values = [];
+        for (var i = 0; i < 4; i++) {
+            var input = cells[i].querySelector('input, select');
+            values.push(input.value.trim());
+        }
+        if (!values[0] || !values[1] || !values[2]) {
+            alert('Preencha todos os campos antes de salvar.');
+            return;
+        }
+        row.classList.add('edit-closing');
+        setTimeout(function() {
+            for (var i = 0; i < 4; i++) {
+                cells[i].textContent = values[i];
+            }
+            row.dataset.editing = 'false';
+            row.cells[4].innerHTML = '';
+            row.cells[4].appendChild(createOrderActions(row));
+            row.classList.remove('edit-closing');
+            row.classList.add('row-saved');
+            setTimeout(function() {
+                row.classList.remove('row-saved');
+            }, 600);
+        }, 400);
+    }
+
+    function cancelOrderEdit(row) {
+        var cells = row.cells;
+        for (var i = 0; i < 4; i++) {
+            var current = cells[i].querySelector('input, select');
+            if (current) {
+                cells[i].textContent = current.defaultValue || current.value;
+            }
+        }
+        row.dataset.editing = 'false';
+        row.cells[4].innerHTML = '';
+        row.cells[4].appendChild(createOrderActions(row));
+    }
+
+    function addOrderActionsToAllRows() {
+        var rows = document.querySelectorAll('#ordersTable tbody tr');
+        rows.forEach(function(row) {
+            if (!row.cells[4] || row.cells[4].innerHTML.trim() === '') {
+                row.cells[4].innerHTML = '';
+                row.cells[4].appendChild(createOrderActions(row));
+            }
+        });
+    }
+
+    function toggleDetails() {
+        var panel = document.getElementById('monitoringDetails');
+        panel.classList.toggle('active');
+    }
+
+    function toggleTheme() {
+        var body = document.body;
+        var toggle = document.getElementById('themeToggle');
+        toggle.classList.add('rotating');
+        setTimeout(function() {
+            toggle.classList.remove('rotating');
+        }, 500);
+        body.classList.toggle('dark');
+        if (body.classList.contains('dark')) {
+            toggle.textContent = '🌙';
+        } else {
+            toggle.textContent = '☀️';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        updateSectorCounts();
+        selectMonitoringArea('Soldagem');
+        addOrderActionsToAllRows();
+        addHistoryActionsToAllRows();
+    });
 </script>
 
 </body>
