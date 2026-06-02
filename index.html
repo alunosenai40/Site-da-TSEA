@@ -67,6 +67,7 @@
 
         .scanner-info { background: var(--light-gray); padding: 12px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 20px; }
     </style>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 
@@ -76,7 +77,8 @@
     
     <div class="menu-item active" onclick="openTab(event, 'dashboard')">Monitoramento</div>
     <div class="menu-item" onclick="openTab(event, 'consulta')">Scan DataMatrix</div>
-    <div class="menu-item" onclick="openTab(event, 'ordens')">Ordens (OPs)</div>
+    <div class="menu-item" onclick="openTab(event, 'qr')">Ler QR Code</div>
+    <div class="menu-item" onclick="openTab(event, 'ordens')">Ordens</div>
 </nav>
 
 <main>
@@ -183,6 +185,22 @@
             </div>
         </div>
         <button class="button" onclick="addScanEntry()">Adicionar Scan DataMatrix</button>
+    </div>
+
+    <div id="qr" class="tab-content">
+        <h2>Leitor de QR Code</h2>
+        <p>Aponte a câmera do dispositivo para o QR Code. Clique em <strong>Iniciar Scanner</strong> para permitir acesso à câmera.</p>
+
+        <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+            <button class="button" onclick="startQrScanner()">Iniciar Scanner</button>
+            <button class="button" onclick="stopQrScanner()">Parar Scanner</button>
+            <div id="qr-result" style="font-weight:600;color:var(--primary);"></div>
+        </div>
+
+        <div id="qr-reader" style="width:100%;max-width:640px;background:var(--white);padding:12px;border-radius:6px;border:1px solid var(--border);"></div>
+
+        <p style="margin-top:12px;">Resultado do último scan: <span id="qr-last" style="font-weight:700"></span></p>
+        <p>O código detectado será preenchido automaticamente no campo de adicionar leitura.</p>
     </div>
 
     <div id="ordens" class="tab-content">
@@ -329,7 +347,7 @@
         var cells = row.cells;
         for (var i = 0; i < 5; i++) {
             var value = cells[i].textContent;
-            if (i === 1) { // Setor
+            if (i === 1) {
                 var select = document.createElement('select');
                 select.className = 'input-field';
                 ['Corte Laser', 'Usinagem', 'Soldagem', 'Montagem'].forEach(function(optionValue) {
@@ -341,7 +359,7 @@
                 });
                 cells[i].innerHTML = '';
                 cells[i].appendChild(select);
-            } else if (i === 4) { // Integridade
+            } else if (i === 4) {
                 var select = document.createElement('select');
                 select.className = 'input-field';
                 ['100% (Lida)', 'Erro de Fluxo', 'Leitura fraca'].forEach(function(optionValue) {
@@ -511,7 +529,7 @@
         row.dataset.editing = 'true';
         var cells = row.cells;
         for (var i = 0; i < 4; i++) {
-            if (i === 0) continue; // OP não é editável
+            if (i === 0) continue;
             var value = cells[i].textContent;
             if (i === 3) {
                 var select = document.createElement('select');
@@ -610,6 +628,32 @@
     function toggleDetails() {
         var panel = document.getElementById('monitoringDetails');
         panel.classList.toggle('active');
+    }
+
+    // QR scanner helpers
+    var html5QrcodeScannerInstance = null;
+    function onScanSuccess(decodedText, decodedResult) {
+        document.getElementById('qr-result').textContent = decodedText;
+        document.getElementById('qr-last').textContent = decodedText;
+        var scanInput = document.getElementById('scanCodigo');
+        if (scanInput) scanInput.value = decodedText;
+    }
+    function onScanError(errorMessage) {
+        // ignora erros de tentativa de leitura
+    }
+    function startQrScanner() {
+        if (html5QrcodeScannerInstance) return;
+        html5QrcodeScannerInstance = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 }, false);
+        html5QrcodeScannerInstance.render(onScanSuccess, onScanError);
+    }
+    function stopQrScanner() {
+        if (!html5QrcodeScannerInstance) return;
+        html5QrcodeScannerInstance.clear().then(function() {
+            html5QrcodeScannerInstance = null;
+            document.getElementById('qr-result').textContent = '';
+        }).catch(function(e) {
+            console.warn('Erro ao parar scanner', e);
+        });
     }
 
     function toggleTheme() {
