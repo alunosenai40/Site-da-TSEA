@@ -477,7 +477,14 @@
     }
 
     let qrScanner = null;
+    let lastQrRead = { text: '', timestamp: 0 };
     function onScanSuccess(text) {
+        const now = Date.now();
+        if(text === lastQrRead.text && now - lastQrRead.timestamp < 3000) {
+            return;
+        }
+        lastQrRead = { text, timestamp: now };
+
         const resultDiv = document.getElementById('qr-result');
         resultDiv.textContent = text;
         resultDiv.style.animation = 'pulse 0.3s ease-out';
