@@ -500,6 +500,12 @@
         const summary = document.getElementById('monitoringSummary');
         summary.innerHTML = `<strong>Último Scan:</strong> Código [${text}] em ${setor} às ${timeNow.getHours().toString().padStart(2,'0')}:${timeNow.getMinutes().toString().padStart(2,'0')}`;
         openTab(null, 'dashboard');
+
+        if (qrScanner) {
+            qrScanner.clear().then(() => {
+                qrScanner = null;
+            }).catch(e => console.warn(e));
+        }
     }
 
     function startQrScanner() {
