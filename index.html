@@ -477,8 +477,11 @@
     }
 
     let qrScanner = null;
+    let qrActive = false;
     let lastQrRead = { text: '', timestamp: 0 };
+
     function onScanSuccess(text) {
+        if(!qrActive) return;
         const now = Date.now();
         if(text === lastQrRead.text && now - lastQrRead.timestamp < 3000) {
             return;
@@ -500,29 +503,30 @@
         const summary = document.getElementById('monitoringSummary');
         summary.innerHTML = `<strong>Último Scan:</strong> Código [${text}] em ${setor} às ${timeNow.getHours().toString().padStart(2,'0')}:${timeNow.getMinutes().toString().padStart(2,'0')}`;
         openTab(null, 'dashboard');
-
-        if (qrScanner) {
-            qrScanner.clear().then(() => {
-                qrScanner = null;
-            }).catch(e => console.warn(e));
-        }
+        stopQrScanner(true);
     }
 
     function startQrScanner() {
-        if(qrScanner) return;
+        if(qrActive) return;
         const readerDiv = document.getElementById('qr-reader');
         readerDiv.style.animation = 'scaleIn 0.3s ease-out';
         qrScanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 }, false);
         qrScanner.render(onScanSuccess, () => {});
+        qrActive = true;
     }
 
-    function stopQrScanner() {
+    function stopQrScanner(fromSuccess = false) {
         if(!qrScanner) return;
+        qrActive = false;
         const readerDiv = document.getElementById('qr-reader');
-        readerDiv.style.animation = 'fadeOut 0.3s ease-out';
+        if(!fromSuccess) {
+            readerDiv.style.animation = 'fadeOut 0.3s ease-out';
+        }
         qrScanner.clear().then(() => {
             qrScanner = null;
-            document.getElementById('qr-result').textContent = '';
+            if(!fromSuccess) {
+                document.getElementById('qr-result').textContent = '';
+            }
         }).catch(e => console.warn(e));
     }
 
