@@ -30,7 +30,8 @@
         .theme-toggle.rotating { animation: rotateToggle 0.6s ease-in-out; }
         
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s ease-out; }
+        .tab-content.active { display: block; animation: slideInTopFast 0.4s ease-out; }
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
@@ -41,6 +42,20 @@
         @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
         @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
         @keyframes rotateToggle { 0% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.1) rotate(180deg); } 100% { transform: scale(1) rotate(360deg); } }
+        @keyframes highlight { 0% { background: rgba(39, 174, 96, 0.3); } 50% { background: rgba(39, 174, 96, 0.15); } 100% { background: transparent; } }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8); } 50% { transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes swing { 0% { transform: rotate(0deg); } 25% { transform: rotate(3deg); } 75% { transform: rotate(-3deg); } 100% { transform: rotate(0deg); } }
+        @keyframes slideInTopFast { 0% { opacity: 0; transform: translateY(-15px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes slideOutTopFast { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-15px); } }
+        @keyframes expandHeight { 0% { opacity: 0; max-height: 0; } 100% { opacity: 1; max-height: 500px; } }
+        @keyframes shrinkHeight { 0% { opacity: 1; max-height: 500px; } 100% { opacity: 0; max-height: 0; } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 5px rgba(52, 152, 219, 0.3); } 50% { box-shadow: 0 0 15px rgba(52, 152, 219, 0.6); } }
+        @keyframes checkmark { 0% { opacity: 0; transform: scale(0) rotate(-45deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+        @keyframes ripple { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(4); opacity: 0; } }
+        @keyframes slideInLeftFast { 0% { opacity: 0; transform: translateX(-15px); } 100% { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0.7; } }
         
         .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 15px 0; }
         .card { background: var(--bg); padding: 15px; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: center; animation: slideInUp 0.4s ease-out; }
@@ -54,11 +69,12 @@
         .form-row label { font-size: 13px; font-weight: 500; }
         
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit; transition: all 0.3s ease; }
-        input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); transform: scale(1.01); }
+        input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); transform: scale(1.01); animation: glow 0.6s ease-in-out; }
+        input:disabled { background: var(--light); cursor: not-allowed; opacity: 0.7; }
         
         .btn { padding: 10px 16px; border: none; border-radius: 4px; background: var(--accent); color: white; cursor: pointer; font-weight: 500; transition: all 0.3s ease; position: relative; overflow: hidden; }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3); }
-        .btn:active { transform: translateY(0); }
+        .btn:active { transform: translateY(0); animation: ripple 0.6s ease-out; }
         .btn-sm { padding: 6px 10px; font-size: 12px; }
         .btn-success { background: var(--success); }
         .btn-success:hover { box-shadow: 0 6px 12px rgba(39, 174, 96, 0.3); }
@@ -78,13 +94,21 @@
         .device-banner { margin: 0 0 20px; padding: 10px 14px; background: rgba(52, 152, 219, 0.12); color: var(--accent); border-radius: 6px; border: 1px solid rgba(52, 152, 219, 0.2); font-size: 0.95rem; display: inline-block; animation: slideInDown 0.35s ease-out; }
         .info-box { background: var(--light); padding: 12px; border-radius: 4px; border-left: 3px solid var(--accent); margin: 15px 0; font-size: 14px; animation: slideInLeft 0.4s ease-out; }
         .details-panel { display: none; background: var(--light); padding: 15px; border-radius: 4px; margin: 15px 0; animation: slideInDown 0.3s ease-out; }
-        .details-panel.active { display: block; animation: slideInDown 0.3s ease-out; }
+        .details-panel.active { display: block; animation: expandHeight 0.4s ease-out; }
         
         .action-buttons { display: flex; gap: 6px; flex-wrap: wrap; animation: slideInUp 0.3s ease-out; }
-        .row-saved { animation: highlight 0.6s ease-in-out; }
+        .row-saved { animation: highlight 0.6s ease-in-out, bounce 0.6s ease-out; }
         .fade-out { animation: fadeOut 0.2s ease-out; }
-        @keyframes highlight { 0% { background: rgba(39, 174, 96, 0.3); } 50% { background: rgba(39, 174, 96, 0.15); } 100% { background: transparent; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0.7; } }
+        .input-field { animation: popIn 0.3s ease-out; }
+        
+        .orders-stats { margin: 20px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+        .stat-card { background: var(--light); padding: 12px; border-radius: 4px; text-align: center; border: 1px solid var(--border); transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(52, 152, 219, 0.15); }
+        .stat-card p:first-child { font-size: 11px; opacity: 0.7; margin-bottom: 8px; }
+        .stat-card p:last-child { font-size: 20px; font-weight: 600; }
+        
+        .progress-bar { width: 100%; height: 6px; background: var(--light); border-radius: 3px; overflow: hidden; margin-top: 5px; }
+        .progress-fill { height: 100%; background: var(--success); border-radius: 3px; transition: width 0.3s ease; animation: slideInLeft 0.4s ease-out; }
         
         @media (max-width: 1024px) {
             html { font-size: 15px; }
@@ -105,6 +129,7 @@
             h3 { font-size: 1rem; }
             .card-grid { grid-template-columns: 1fr; gap: 12px; }
             .form-grid { grid-template-columns: 1fr; }
+            .orders-stats { grid-template-columns: repeat(2, 1fr); }
             .card { padding: 14px; }
             .card h3 { font-size: 0.95rem; }
             .card p { font-size: 1.2rem; }
@@ -125,6 +150,7 @@
             .btn { width: 100%; }
             .card-grid { gap: 10px; }
             .card p { font-size: 1.1rem; }
+            .orders-stats { grid-template-columns: 1fr; }
             #qr-reader { min-height: 240px; }
         }
     </style>
@@ -180,7 +206,7 @@
 
         <h3>Histórico de Leituras</h3>
         <table id="historyTable">
-            <thead><tr><th>DataMatrix</th><th>Setor</th><th>Peça</th><th>Data/Hora</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead><tr><th>DataMatrix</th><th>Setor</th><th>Peça</th><th>Data/Hora</th><th>Ordem/Cliente</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
@@ -203,6 +229,12 @@
                     <option value="Usinagem">Usinagem</option>
                     <option value="Soldagem">Soldagem</option>
                     <option value="Montagem">Montagem</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="scanOrdem">Ordem / Cliente</label>
+                <select id="scanOrdem">
+                    <option value="">Selecione uma ordem</option>
                 </select>
             </div>
             <div class="form-row">
@@ -237,16 +269,16 @@
         <h2>Gestão de Ordens</h2>
         <div class="form-grid">
             <div class="form-row">
-                <label for="orderOp">OP</label>
-                <input id="orderOp" type="text" placeholder="OP-1542">
+                <label for="orderOp">OP (Gerado Automaticamente)</label>
+                <input id="orderOp" type="text" placeholder="OP-0001" disabled>
             </div>
             <div class="form-row">
                 <label for="orderCliente">Cliente</label>
                 <input id="orderCliente" type="text" placeholder="Cliente XYZ">
             </div>
             <div class="form-row">
-                <label for="orderPecas">Peças Marcadas</label>
-                <input id="orderPecas" type="text" placeholder="0/50">
+                <label for="orderPecas">Total de Peças</label>
+                <input id="orderPecas" type="number" placeholder="50" min="1">
             </div>
             <div class="form-row">
                 <label for="orderStatus">Status</label>
@@ -257,9 +289,29 @@
                 </select>
             </div>
         </div>
-        <button class="btn" onclick="addOrderEntry()">Adicionar Ordem</button>
+        <button class="btn" onclick="addOrderEntry()" style="animation: slideInUp 0.4s ease-out 0.2s backwards;">Adicionar Ordem</button>
+        
+        <div class="orders-stats">
+            <div class="stat-card" style="animation: popIn 0.4s ease-out 0.3s backwards;">
+                <p>Total</p>
+                <p style="color: var(--accent);" id="totalOrders">0</p>
+            </div>
+            <div class="stat-card" style="animation: popIn 0.4s ease-out 0.35s backwards;">
+                <p>Em andamento</p>
+                <p style="color: #f39c12;" id="inProgress">0</p>
+            </div>
+            <div class="stat-card" style="animation: popIn 0.4s ease-out 0.4s backwards;">
+                <p>Concluídas</p>
+                <p style="color: var(--success);" id="completed">0</p>
+            </div>
+            <div class="stat-card" style="animation: popIn 0.4s ease-out 0.45s backwards;">
+                <p>Pausadas</p>
+                <p style="color: var(--warning);" id="paused">0</p>
+            </div>
+        </div>
+
         <table id="ordersTable">
-            <thead><tr><th>OP</th><th>Cliente</th><th>Peças</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead><tr><th>OP</th><th>Cliente</th><th>Marcadas</th><th>Total</th><th>Progresso</th><th>Status</th><th>Ações</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
@@ -275,29 +327,62 @@
     };
 
     function toggleNav() {
-        document.getElementById('nav').classList.toggle('mobile-open');
+        const nav = document.getElementById('nav');
+        nav.style.animation = nav.classList.contains('mobile-open') ? 'slideOutTopFast 0.3s ease-out' : 'slideInDown 0.3s ease-out';
+        nav.classList.toggle('mobile-open');
     }
 
     function openTab(evt, tabName) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabName).classList.add('active');
+        document.querySelectorAll('.tab-content').forEach((el, i) => {
+            if(el.classList.contains('active')) {
+                el.style.animation = 'slideOutTopFast 0.2s ease-out forwards';
+                el.addEventListener('animationend', () => {
+                    el.classList.remove('active');
+                }, { once: true });
+            }
+        });
+        
+        document.querySelectorAll('.menu-item').forEach(el => {
+            el.style.animation = 'none';
+            el.classList.remove('active');
+        });
+        
+        const activeTab = document.getElementById(tabName);
+        activeTab.classList.add('active');
+        activeTab.style.animation = 'slideInTopFast 0.4s ease-out';
+        
         if(evt && evt.currentTarget) {
             evt.currentTarget.classList.add('active');
+            evt.currentTarget.style.animation = 'scaleIn 0.3s ease-out';
             toggleNav();
         } else {
-            document.querySelector(`.menu-item[data-target="${tabName}"]`)?.classList.add('active');
+            const menuItem = document.querySelector(`.menu-item[data-target="${tabName}"]`);
+            if(menuItem) {
+                menuItem.classList.add('active');
+                menuItem.style.animation = 'scaleIn 0.3s ease-out';
+            }
         }
     }
 
     function selectMonitoringArea(area) {
         document.querySelectorAll('.card').forEach(card => {
-            card.classList.toggle('selected', card.textContent.includes(area));
+            if(card.textContent.includes(area)) {
+                card.classList.add('selected');
+                card.style.animation = 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            } else {
+                card.style.animation = 'fadeOut 0.2s ease-out';
+                setTimeout(() => {
+                    card.classList.remove('selected');
+                    card.style.animation = 'none';
+                }, 200);
+            }
         });
+        
         document.getElementById('monitoringArea').value = area;
         const data = monitoringData[area];
-        document.getElementById('monitoringSummary').innerHTML = 
-            `<strong>Último Scan:</strong> Código [${data.code}] em ${data.setor} às ${data.time}`;
+        const summary = document.getElementById('monitoringSummary');
+        summary.style.animation = 'slideInLeftFast 0.3s ease-out';
+        summary.innerHTML = `<strong>Último Scan:</strong> Código [${data.code}] em ${data.setor} às ${data.time}`;
         updateMonitoringDetails(area);
     }
 
@@ -306,15 +391,17 @@
         const filtered = rows.filter(r => r.cells[1].textContent === area);
         const content = document.getElementById('monitoringDetailsContent');
         
+        content.style.animation = 'slideInLeftFast 0.3s ease-out';
+        
         if(filtered.length === 0) {
             content.innerHTML = `<p><strong>Setor:</strong> ${area}</p><p>Nenhuma leitura registrada.</p>`;
         } else {
-            const okCount = filtered.filter(r => r.cells[4].textContent.includes('100%')).length;
+            const okCount = filtered.filter(r => r.cells[5].textContent.includes('100%')).length;
             content.innerHTML = `
                 <p><strong>Setor:</strong> ${area}</p>
                 <p><strong>Total:</strong> ${filtered.length} leituras</p>
                 <p><strong>OK:</strong> ${okCount} | <strong>Erros:</strong> ${filtered.length - okCount}</p>
-                <ul>${filtered.map(r => `<li>${r.cells[0].textContent} - ${r.cells[2].textContent}</li>`).join('')}</ul>
+                <ul>${filtered.map((r, i) => `<li style="animation: slideInLeftFast 0.3s ease-out ${i * 0.05}s backwards;">${r.cells[0].textContent} - ${r.cells[2].textContent}</li>`).join('')}</ul>
             `;
         }
     }
@@ -326,7 +413,11 @@
         const editBtn = document.createElement('button');
         editBtn.className = 'btn btn-sm';
         editBtn.textContent = 'Editar';
-        editBtn.onclick = () => startEdit(row, isOrder);
+        editBtn.style.animation = 'slideInLeftFast 0.3s ease-out';
+        editBtn.onclick = () => {
+            editBtn.style.animation = 'swing 0.4s ease-in-out';
+            startEdit(row, isOrder);
+        };
         div.appendChild(editBtn);
         return div;
     }
@@ -334,17 +425,18 @@
     function startEdit(row, isOrder = false) {
         if(row.dataset.editing === 'true') return;
         row.dataset.editing = 'true';
-        const max = isOrder ? 4 : 5;
+        row.style.animation = 'glow 0.3s ease-out';
+        const max = isOrder ? 4 : 6;
         
         for(let i = 0; i < max; i++) {
             if(isOrder && i === 0) continue;
             const value = row.cells[i].textContent;
             let input;
             
-            if((isOrder && i === 3) || (!isOrder && (i === 1 || i === 4))) {
+            if((isOrder && i === 3) || (!isOrder && (i === 1 || i === 5))) {
                 input = document.createElement('select');
                 const opts = (!isOrder && i === 1) ? ['Corte Laser', 'Usinagem', 'Soldagem', 'Montagem'] :
-                             (!isOrder && i === 4) ? ['100% (Lida)', 'Erro de Fluxo', 'Leitura fraca'] :
+                             (!isOrder && i === 5) ? ['100% (Lida)', 'Erro de Fluxo', 'Leitura fraca'] :
                              ['Em andamento', 'Concluída', 'Pausada'];
                 opts.forEach(opt => {
                     const o = document.createElement('option');
@@ -359,62 +451,106 @@
                 input.value = value;
             }
             input.className = 'input-field';
+            input.style.animation = 'popIn 0.3s ease-out';
             row.cells[i].innerHTML = '';
             row.cells[i].appendChild(input);
         }
         
-        const actionCell = row.cells[isOrder ? 4 : 5];
+        const actionCell = row.cells[isOrder ? 6 : 6];
         actionCell.innerHTML = '';
+        
         const saveBtn = document.createElement('button');
         saveBtn.className = 'btn btn-sm btn-success';
         saveBtn.textContent = 'Salvar';
-        saveBtn.onclick = () => finishEdit(row, isOrder);
+        saveBtn.style.animation = 'slideInLeftFast 0.3s ease-out';
+        saveBtn.onclick = () => {
+            saveBtn.style.animation = 'bounce 0.4s ease-out';
+            finishEdit(row, isOrder);
+        };
+        
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'btn btn-sm btn-warning';
         cancelBtn.textContent = 'Cancelar';
-        cancelBtn.onclick = () => cancelEdit(row, isOrder);
+        cancelBtn.style.animation = 'slideInLeftFast 0.3s ease-out 0.1s backwards';
+        cancelBtn.onclick = () => {
+            cancelBtn.style.animation = 'shake 0.3s ease-out';
+            cancelEdit(row, isOrder);
+        };
+        
         actionCell.appendChild(saveBtn);
         actionCell.appendChild(cancelBtn);
     }
 
     function finishEdit(row, isOrder = false) {
-        const max = isOrder ? 4 : 5;
+        const max = isOrder ? 4 : 6;
         const values = [];
         for(let i = 0; i < max; i++) {
             const input = row.cells[i].querySelector('input, select');
             values.push(input.value.trim());
         }
         if(values.some(v => !v)) {
+            row.style.animation = 'shake 0.3s ease-out';
             alert('Preencha todos os campos');
             return;
         }
         row.classList.add('row-saved');
+        row.style.animation = 'highlight 0.6s ease-in-out, bounce 0.6s ease-out';
+        
         setTimeout(() => {
-            for(let i = 0; i < (isOrder ? 4 : 4); i++) {
+            for(let i = 0; i < (isOrder ? 4 : 5); i++) {
                 row.cells[i].textContent = values[i];
+                row.cells[i].style.animation = 'popIn 0.3s ease-out';
             }
             if(!isOrder) {
                 const badge = document.createElement('span');
-                badge.className = values[4] === '100% (Lida)' ? 'badge badge-ok' : 'badge badge-alert';
-                badge.textContent = values[4];
-                row.cells[4].innerHTML = '';
-                row.cells[4].appendChild(badge);
+                badge.className = values[5] === '100% (Lida)' ? 'badge badge-ok' : 'badge badge-alert';
+                badge.textContent = values[5];
+                badge.style.animation = 'popIn 0.3s ease-out';
+                row.cells[5].innerHTML = '';
+                row.cells[5].appendChild(badge);
             }
             row.dataset.editing = 'false';
-            const actionCell = row.cells[isOrder ? 4 : 5];
+            const actionCell = row.cells[isOrder ? 6 : 6];
             actionCell.innerHTML = '';
             actionCell.appendChild(createRowActions(row, isOrder));
             row.classList.remove('row-saved');
+            row.style.animation = 'checkmark 0.4s ease-out';
             if(!isOrder) updateMonitoringDetails(document.getElementById('monitoringArea').value);
+            if(isOrder) updateOrderStats();
         }, 300);
     }
 
     function cancelEdit(row, isOrder = false) {
         row.classList.add('fade-out');
+        row.style.animation = 'slideOutTopFast 0.2s ease-out';
         setTimeout(() => {
             row.classList.remove('fade-out');
             location.reload();
         }, 200);
+    }
+
+    function updateOrderSelect() {
+        const ordemSelect = document.getElementById('scanOrdem');
+        if (!ordemSelect) return;
+
+        const currentValue = ordemSelect.value;
+        ordemSelect.innerHTML = '<option value="">Selecione uma ordem</option>';
+
+        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
+        rows.forEach(row => {
+            const op = row.cells[0].textContent;
+            const cliente = row.cells[1].textContent;
+            const marcadas = row.cells[2].textContent;
+            const total = row.cells[3].textContent;
+            const option = document.createElement('option');
+            option.value = op;
+            option.textContent = `${op} - ${cliente} (${marcadas}/${total})`;
+            ordemSelect.appendChild(option);
+        });
+
+        if(currentValue) {
+            ordemSelect.value = currentValue;
+        }
     }
 
     function addScanEntry(fromQr = false) {
@@ -423,9 +559,15 @@
         const pecaField = document.getElementById('scanPeca');
         const peca = (pecaField && pecaField.value.trim()) ? pecaField.value.trim() : 'QR Code Detectado';
         const integridade = document.getElementById('scanIntegridade').value;
+        const ordem = document.getElementById('scanOrdem').value;
+        const ordemSelect = document.getElementById('scanOrdem');
+        const ordemTexto = ordemSelect.selectedOptions[0]?.textContent || '';
         
-        if(!codigo || !peca) {
-            if(!fromQr) alert('Preencha DataMatrix e Peça');
+        if(!codigo || !peca || !ordem) {
+            if(!fromQr) {
+                document.getElementById('scanCodigo').style.animation = 'shake 0.3s ease-out';
+                alert('Preencha DataMatrix, Peça e selecione uma ordem');
+            }
             return;
         }
         
@@ -433,49 +575,209 @@
         const hora = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
         
         const row = document.querySelector('#historyTable tbody').insertRow(0);
-        row.style.animation = 'slideInUp 0.3s ease-out';
+        row.style.animation = 'slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        
         row.insertCell(0).textContent = codigo;
         row.insertCell(1).textContent = setor;
         row.insertCell(2).textContent = peca;
         row.insertCell(3).textContent = hora;
+        row.insertCell(4).textContent = ordemTexto;
         
         const badge = document.createElement('span');
         badge.className = integridade === '100% (Lida)' ? 'badge badge-ok' : 'badge badge-alert';
         badge.textContent = integridade;
-        row.insertCell(4).appendChild(badge);
-        row.insertCell(5).appendChild(createRowActions(row));
+        badge.style.animation = 'popIn 0.3s ease-out';
+        row.insertCell(5).appendChild(badge);
+        row.insertCell(6).appendChild(createRowActions(row));
         
         document.getElementById('scanCodigo').value = '';
-        if(!fromQr && pecaField) pecaField.value = '';
+        document.getElementById('scanCodigo').style.animation = 'none';
+        if(!fromQr && pecaField) {
+            pecaField.value = '';
+            pecaField.style.animation = 'none';
+        }
+        
+        incrementOrderPieces(ordem);
         updateMonitoringDetails(setor);
     }
 
+    function incrementOrderPieces(ordem) {
+        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
+        const orderRow = rows.find(row => row.cells[0].textContent === ordem);
+
+        if (!orderRow) return;
+
+        const marcadasCell = orderRow.cells[2];
+        const totalCell = orderRow.cells[3];
+        const progressCell = orderRow.cells[4];
+        
+        const marcadas = parseInt(marcadasCell.textContent) || 0;
+        const total = parseInt(totalCell.textContent) || 0;
+        
+        if (total > 0) {
+            const novasMarcadas = Math.min(marcadas + 1, total);
+            marcadasCell.textContent = novasMarcadas;
+            marcadasCell.style.animation = 'bounce 0.4s ease-out';
+            
+            const percentual = Math.round((novasMarcadas / total) * 100);
+            progressCell.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width: ${percentual}%"></div></div><span style="font-size: 11px;">${percentual}%</span>`;
+            progressCell.style.animation = 'slideInLeft 0.3s ease-out';
+
+            if (novasMarcadas === total) {
+                updateOrderStatusToConcluded(orderRow);
+            }
+        }
+    }
+
+    function updateOrderStatusToConcluded(orderRow) {
+        const statusCell = orderRow.cells[5];
+        const statusBadge = statusCell.querySelector('.badge');
+        
+        if (statusBadge && statusBadge.textContent.includes('Em andamento')) {
+            statusCell.innerHTML = '';
+            const newBadge = document.createElement('span');
+            newBadge.className = 'badge';
+            newBadge.textContent = 'Concluída';
+            newBadge.style.background = 'rgba(39, 174, 96, 0.2)';
+            newBadge.style.color = 'var(--success)';
+            newBadge.style.animation = 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            statusCell.appendChild(newBadge);
+            
+            orderRow.style.animation = 'highlight 0.8s ease-in-out, bounce 0.6s ease-out';
+            updateOrderStats();
+        }
+    }
+
+    function generateOP() {
+        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
+        const existingOPs = rows.map(r => r.cells[0].textContent).filter(op => op.startsWith('OP-'));
+        
+        const numbers = existingOPs.map(op => {
+            const num = parseInt(op.replace('OP-', ''));
+            return isNaN(num) ? 0 : num;
+        });
+        
+        const nextNumber = Math.max(0, ...numbers) + 1;
+        
+        return `OP-${nextNumber.toString().padStart(4, '0')}`;
+    }
+
     function addOrderEntry() {
-        const op = document.getElementById('orderOp').value.trim();
         const cliente = document.getElementById('orderCliente').value.trim();
         const pecas = document.getElementById('orderPecas').value.trim();
         const status = document.getElementById('orderStatus').value;
         
-        if(!op || !cliente || !pecas) {
-            alert('Preencha todos os campos');
+        if(!cliente || !pecas) {
+            document.getElementById('orderCliente').style.animation = 'shake 0.3s ease-out';
+            alert('Preencha Cliente e Total de Peças');
             return;
         }
+
+        const op = generateOP();
+        document.getElementById('orderOp').value = op;
         
         const row = document.querySelector('#ordersTable tbody').insertRow(0);
-        row.style.animation = 'slideInUp 0.3s ease-out';
-        row.insertCell(0).textContent = op;
-        row.insertCell(1).textContent = cliente;
-        row.insertCell(2).textContent = pecas;
-        row.insertCell(3).textContent = status;
-        row.insertCell(4).appendChild(createRowActions(row, true));
+        row.style.animation = 'slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
         
-        document.getElementById('orderOp').value = '';
+        const opCell = row.insertCell(0);
+        opCell.textContent = op;
+        opCell.style.animation = 'popIn 0.3s ease-out';
+        
+        const clienteCell = row.insertCell(1);
+        clienteCell.textContent = cliente;
+        clienteCell.style.animation = 'popIn 0.3s ease-out 0.05s backwards';
+        
+        const marcadasCell = row.insertCell(2);
+        marcadasCell.textContent = '0';
+        marcadasCell.style.animation = 'popIn 0.3s ease-out 0.1s backwards';
+        
+        const totalCell = row.insertCell(3);
+        totalCell.textContent = pecas;
+        totalCell.style.animation = 'popIn 0.3s ease-out 0.1s backwards';
+        
+        const progressCell = row.insertCell(4);
+        progressCell.innerHTML = '<div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div><span style="font-size: 11px;">0%</span>';
+        progressCell.style.animation = 'popIn 0.3s ease-out 0.15s backwards';
+        
+        const statusCell = row.insertCell(5);
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'badge';
+        statusBadge.textContent = status;
+        statusBadge.style.animation = 'scaleIn 0.3s ease-out 0.15s backwards';
+        
+        if(status === 'Em andamento') {
+            statusBadge.style.background = 'rgba(243, 156, 18, 0.2)';
+            statusBadge.style.color = '#f39c12';
+        } else if(status === 'Concluída') {
+            statusBadge.style.background = 'rgba(39, 174, 96, 0.2)';
+            statusBadge.style.color = 'var(--success)';
+        } else {
+            statusBadge.style.background = 'rgba(231, 76, 60, 0.2)';
+            statusBadge.style.color = 'var(--warning)';
+        }
+        statusCell.appendChild(statusBadge);
+        
+        const actionsCell = row.insertCell(6);
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn btn-sm btn-warning';
+        deleteBtn.textContent = 'Deletar';
+        deleteBtn.style.animation = 'slideInLeftFast 0.3s ease-out 0.2s backwards';
+        deleteBtn.onclick = () => {
+            row.style.animation = 'slideOutTopFast 0.3s ease-out forwards';
+            setTimeout(() => {
+                row.remove();
+                updateOrderStats();
+                updateOrderSelect();
+            }, 300);
+        };
+        actionsCell.appendChild(deleteBtn);
+        
         document.getElementById('orderCliente').value = '';
+        document.getElementById('orderCliente').style.animation = 'none';
         document.getElementById('orderPecas').value = '';
+        document.getElementById('orderPecas').style.animation = 'none';
+        
+        updateOrderStats();
+        updateOrderSelect();
+    }
+
+    function updateOrderStats() {
+        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
+        const total = rows.length;
+        const inProgress = rows.filter(r => r.cells[5].textContent.includes('Em andamento')).length;
+        const completed = rows.filter(r => r.cells[5].textContent.includes('Concluída')).length;
+        const paused = rows.filter(r => r.cells[5].textContent.includes('Pausada')).length;
+        
+        const totalEl = document.getElementById('totalOrders');
+        const inProgressEl = document.getElementById('inProgress');
+        const completedEl = document.getElementById('completed');
+        const pausedEl = document.getElementById('paused');
+        
+        if(totalEl) {
+            totalEl.style.animation = 'bounce 0.4s ease-out';
+            totalEl.textContent = total;
+        }
+        if(inProgressEl) {
+            inProgressEl.style.animation = 'bounce 0.4s ease-out';
+            inProgressEl.textContent = inProgress;
+        }
+        if(completedEl) {
+            completedEl.style.animation = 'bounce 0.4s ease-out';
+            completedEl.textContent = completed;
+        }
+        if(pausedEl) {
+            pausedEl.style.animation = 'bounce 0.4s ease-out';
+            pausedEl.textContent = paused;
+        }
     }
 
     function toggleDetails() {
-        document.getElementById('monitoringDetails').classList.toggle('active');
+        const details = document.getElementById('monitoringDetails');
+        const isActive = details.classList.contains('active');
+        details.style.animation = isActive ? 'shrinkHeight 0.3s ease-out' : 'expandHeight 0.3s ease-out';
+        setTimeout(() => {
+            details.classList.toggle('active');
+        }, 150);
     }
 
     function detectDeviceType() {
@@ -495,10 +797,6 @@
 
     function updateDeviceLabel() {
         const device = detectDeviceType();
-        const banner = document.getElementById('deviceBanner');
-        if (banner) {
-            banner.textContent = `Dispositivo: ${device} • Responsive Web Design ativado.`;
-        }
         document.body.classList.remove('celular', 'tablet', 'pc');
         document.body.classList.add(device.toLowerCase());
         document.body.setAttribute('data-device', device.toLowerCase());
@@ -518,26 +816,38 @@
 
         const resultDiv = document.getElementById('qr-result');
         resultDiv.textContent = text;
-        resultDiv.style.animation = 'pulse 0.3s ease-out';
+        resultDiv.style.animation = 'popIn 0.4s ease-out';
+        
         document.getElementById('qr-last').textContent = text;
+        document.getElementById('qr-last').style.animation = 'bounce 0.4s ease-out';
+        
         const field = document.getElementById('scanCodigo');
         if(field) field.value = text;
         const setor = document.getElementById('monitoringArea').value || 'Corte Laser';
         document.getElementById('scanSetor').value = setor;
+        selectFirstOrderIfNeeded();
         const pecaField = document.getElementById('scanPeca');
         if(pecaField && !pecaField.value.trim()) pecaField.value = 'QR Code Detectado';
         addScanEntry(true);
         const timeNow = new Date();
         const summary = document.getElementById('monitoringSummary');
+        summary.style.animation = 'slideInLeftFast 0.3s ease-out';
         summary.innerHTML = `<strong>Último Scan:</strong> Código [${text}] em ${setor} às ${timeNow.getHours().toString().padStart(2,'0')}:${timeNow.getMinutes().toString().padStart(2,'0')}`;
         openTab(null, 'dashboard');
         stopQrScanner(true);
     }
 
+    function selectFirstOrderIfNeeded() {
+        const ordemSelect = document.getElementById('scanOrdem');
+        if (ordemSelect && ordemSelect.value === '' && ordemSelect.options.length > 1) {
+            ordemSelect.selectedIndex = 1;
+        }
+    }
+
     function startQrScanner() {
         if(qrActive) return;
         const readerDiv = document.getElementById('qr-reader');
-        readerDiv.style.animation = 'scaleIn 0.3s ease-out';
+        readerDiv.style.animation = 'popIn 0.4s ease-out';
         qrScanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 }, false);
         qrScanner.render(onScanSuccess, () => {});
         qrActive = true;
@@ -548,12 +858,15 @@
         qrActive = false;
         const readerDiv = document.getElementById('qr-reader');
         if(!fromSuccess) {
-            readerDiv.style.animation = 'fadeOut 0.3s ease-out';
+            readerDiv.style.animation = 'slideOutTopFast 0.3s ease-out forwards';
         }
         qrScanner.clear().then(() => {
             qrScanner = null;
             if(!fromSuccess) {
-                document.getElementById('qr-result').textContent = '';
+                document.getElementById('qr-result').style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => {
+                    document.getElementById('qr-result').textContent = '';
+                }, 300);
             }
         }).catch(e => console.warn(e));
     }
@@ -569,6 +882,8 @@
     document.addEventListener('DOMContentLoaded', () => {
         selectMonitoringArea('Corte Laser');
         updateDeviceLabel();
+        updateOrderStats();
+        updateOrderSelect();
         window.addEventListener('resize', updateDeviceLabel);
         document.querySelectorAll('h2, h3').forEach((el, i) => {
             el.style.animation = `slideInLeft 0.4s ease-out ${i * 0.1}s backwards`;
