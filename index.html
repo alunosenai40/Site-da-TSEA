@@ -155,9 +155,9 @@
                     localStorage.setItem('tsea_token', data.token);
                     localStorage.setItem('tsea_nome_usuario', data.usuarioNome);
                     
-                    // Redireciona com segurança para a página principal (/index)
+                    // Redireciona com segurança para a página principal
                     setTimeout(() => {
-                        window.location.href = '/index';
+                        window.location.href = 'dashboard.html';
                     }, 1000);
                 } else {
                     showMessage('❌ ' + (data.mensagem || 'Erro ao fazer login'), 'error');

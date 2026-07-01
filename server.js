@@ -45,17 +45,17 @@ db.connect((err) => {
     ensureUserSchema();
 });
 
-// Rota para servir o loginstate.html (página de login)
+// Rota principal (http://localhost:3000/) - Agora serve o seu novo index.html (Tela de Login)
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'loginstate.html'));
-});
-
-// Rota para servir o index.html (dashboard)
-app.get('/index', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Rota para servir a página de registro
+// Rota do painel de monitoramento - Agora serve o seu arquivo site.html
+app.get('/site.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'site.html'));
+});
+
+// Rota para servir a página de registro (login.html)
 app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, 'login.html'));
 });
