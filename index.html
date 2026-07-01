@@ -94,6 +94,11 @@
         .device-banner { margin: 0 0 20px; padding: 10px 14px; background: rgba(52, 152, 219, 0.12); color: var(--accent); border-radius: 6px; border: 1px solid rgba(52, 152, 219, 0.2); font-size: 0.95rem; display: inline-block; animation: slideInDown 0.35s ease-out; }
         .info-box { background: var(--light); padding: 12px; border-radius: 4px; border-left: 3px solid var(--accent); margin: 15px 0; font-size: 14px; animation: slideInLeft 0.4s ease-out; }
         .details-panel { display: none; background: var(--light); padding: 15px; border-radius: 4px; margin: 15px 0; animation: slideInDown 0.3s ease-out; }
+        .reading-card { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 8px; }
+        .reading-item { background: rgba(255,255,255,0.55); padding: 10px; border-radius: 6px; border: 1px solid rgba(52, 152, 219, 0.15); }
+        .reading-item strong { display: block; font-size: 12px; color: var(--accent); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .reading-item span { font-size: 14px; font-weight: 600; }
+        .dark .reading-item { background: rgba(45,45,45,0.85); }
         .details-panel.active { display: block; animation: expandHeight 0.4s ease-out; }
         
         .action-buttons { display: flex; gap: 6px; flex-wrap: wrap; animation: slideInUp 0.3s ease-out; }
@@ -157,12 +162,25 @@
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
+<script>
+    const token = localStorage.getItem('token_tsea');
+
+    if (!token) {
+        alert('Acesso negado! Por favor, faça login primeiro.');
+        window.location.href = 'loginstate.html';
+    }
+</script>
 
 <div class="container">
 <nav id="nav">
     <span class="menu-icon" onclick="toggleNav()">☰</span>
     <h1>TrackMetal</h1>
     <p>Marcação Laser & DataMatrix</p>
+    <div id="usuarioInfo" style="padding: 12px; background: rgba(52, 152, 219, 0.1); border-radius: 4px; margin-bottom: 20px; font-size: 13px; animation: slideInLeft 0.5s ease-out;">
+        <p style="margin: 0 0 8px; opacity: 0.7;">Logado como:</p>
+        <p style="margin: 0; font-weight: 600;" id="nomeUsuario">—</p>
+        <button onclick="fazerLogout()" style="width: 100%; margin-top: 10px; padding: 8px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">🚪 Sair</button>
+    </div>
     
     <div class="menu-item active" data-target="dashboard" onclick="openTab(event, 'dashboard')">Monitoramento</div>
     <div class="menu-item" data-target="consulta" onclick="openTab(event, 'consulta')">Scan DataMatrix</div>
@@ -204,9 +222,9 @@
             </div>
         </div>
 
-        <h3>Histórico de Leituras</h3>
+        <h3 id="historyTitle">Histórico de Leituras</h3>
         <table id="historyTable">
-            <thead><tr><th>DataMatrix</th><th>Setor</th><th>Peça</th><th>Data/Hora</th><th>Ordem/Cliente</th><th>Status</th><th>Ações</th></tr></thead>
+            <thead><tr><th>Peça</th><th>Código</th><th>Lote</th><th>Data</th><th>Status</th><th>Setor</th><th>Ações</th></tr></thead>
             <tbody></tbody>
         </table>
     </div>
@@ -219,8 +237,29 @@
         <h3>Adicionar Leitura</h3>
         <div class="form-grid">
             <div class="form-row">
-                <label for="scanCodigo">DataMatrix</label>
-                <input id="scanCodigo" type="text" placeholder="DM-A123">
+                <label for="scanPeca">Peça</label>
+                <input id="scanPeca" type="text" placeholder="Rotor">
+            </div>
+            <div class="form-row">
+                <label for="scanCodigo">Código</label>
+                <input id="scanCodigo" type="text" placeholder="TM-2026-000154">
+            </div>
+            <div class="form-row">
+                <label for="scanLote">Lote</label>
+                <input id="scanLote" type="text" placeholder="L202606">
+            </div>
+            <div class="form-row">
+                <label for="scanData">Data</label>
+                <input id="scanData" type="text" placeholder="30/06/2026">
+            </div>
+            <div class="form-row">
+                <label for="scanStatus">Status</label>
+                <select id="scanStatus">
+                    <option value="Produção">Produção</option>
+                    <option value="Parada">Parada</option>
+                    <option value="Concluído">Concluído</option>
+                    <option value="Pendente">Pendente</option>
+                </select>
             </div>
             <div class="form-row">
                 <label for="scanSetor">Setor</label>
@@ -229,24 +268,6 @@
                     <option value="Usinagem">Usinagem</option>
                     <option value="Soldagem">Soldagem</option>
                     <option value="Montagem">Montagem</option>
-                </select>
-            </div>
-            <div class="form-row">
-                <label for="scanOrdem">Ordem / Cliente</label>
-                <select id="scanOrdem">
-                    <option value="">Selecione uma ordem</option>
-                </select>
-            </div>
-            <div class="form-row">
-                <label for="scanPeca">Peça/Lote</label>
-                <input id="scanPeca" type="text" placeholder="Nome da peça">
-            </div>
-            <div class="form-row">
-                <label for="scanIntegridade">Integridade</label>
-                <select id="scanIntegridade">
-                    <option value="100% (Lida)">100% (Lida)</option>
-                    <option value="Erro de Fluxo">Erro de Fluxo</option>
-                    <option value="Leitura fraca">Leitura fraca</option>
                 </select>
             </div>
         </div>
@@ -320,10 +341,10 @@
 
 <script>
     const monitoringData = {
-        'Corte Laser': { code: 'DM-B098', setor: 'Corte', time: '14:22' },
-        'Usinagem': { code: 'DM-A105', setor: 'Usinagem', time: '14:38' },
-        'Soldagem': { code: 'DM-A102', setor: 'Soldagem', time: '14:45' },
-        'Montagem': { code: 'DM-A110', setor: 'Montagem', time: '14:52' }
+        'Corte Laser': { code: 'TM-2026-000154', setor: 'Corte Laser', time: '14:22' },
+        'Usinagem': { code: 'TM-2026-000154', setor: 'Setor de Usinagem', time: '14:38' },
+        'Soldagem': { code: 'TM-2026-000154', setor: 'Setor de Soldagem', time: '14:45' },
+        'Montagem': { code: 'TM-2026-000154', setor: 'Setor de Montagem', time: '14:52' }
     };
 
     function toggleNav() {
@@ -333,7 +354,7 @@
     }
 
     function openTab(evt, tabName) {
-        document.querySelectorAll('.tab-content').forEach((el, i) => {
+        document.querySelectorAll('.tab-content').forEach((el) => {
             if(el.classList.contains('active')) {
                 el.style.animation = 'slideOutTopFast 0.2s ease-out forwards';
                 el.addEventListener('animationend', () => {
@@ -379,16 +400,69 @@
         });
         
         document.getElementById('monitoringArea').value = area;
-        const data = monitoringData[area];
+        const currentReading = window.lastReadingData || null;
         const summary = document.getElementById('monitoringSummary');
         summary.style.animation = 'slideInLeftFast 0.3s ease-out';
-        summary.innerHTML = `<strong>Último Scan:</strong> Código [${data.code}] em ${data.setor} às ${data.time}`;
+        updateHistoryTable(area);
+        if(currentReading) {
+            summary.innerHTML = `
+                <strong>Última leitura:</strong>
+                <div class="reading-card">
+                    <div class="reading-item"><strong>Peça</strong><span>${currentReading.peca}</span></div>
+                    <div class="reading-item"><strong>Código</strong><span>${currentReading.codigo}</span></div>
+                    <div class="reading-item"><strong>Lote</strong><span>${currentReading.lote}</span></div>
+                    <div class="reading-item"><strong>Data</strong><span>${currentReading.data}</span></div>
+                    <div class="reading-item"><strong>Status</strong><span>${currentReading.status}</span></div>
+                    <div class="reading-item"><strong>Setor</strong><span>${currentReading.setor || area}</span></div>
+                </div>`;
+        } else {
+            const data = monitoringData[area];
+            summary.innerHTML = `<strong>Último Scan:</strong> Código [${data.code}] em ${data.setor} às ${data.time}`;
+        }
         updateMonitoringDetails(area);
+    }
+
+    function updateMonitoringCounts() {
+        const counts = {
+            'Corte Laser': 0,
+            'Usinagem': 0,
+            'Soldagem': 0,
+            'Montagem': 0
+        };
+
+        document.querySelectorAll('#historyTable tbody tr').forEach((row) => {
+            const setor = row.cells[5].textContent.trim();
+            if (counts[setor] !== undefined) {
+                counts[setor] += 1;
+            }
+        });
+
+        document.getElementById('countCorteLaser').textContent = counts['Corte Laser'];
+        document.getElementById('countUsinagem').textContent = counts['Usinagem'];
+        document.getElementById('countSoldagem').textContent = counts['Soldagem'];
+        document.getElementById('countMontagem').textContent = counts['Montagem'];
+    }
+
+    function updateHistoryTable(area = null) {
+        const rows = Array.from(document.querySelectorAll('#historyTable tbody tr'));
+        const filtered = area ? rows.filter((row) => row.cells[5].textContent.trim() === area) : rows;
+        const tbody = document.querySelector('#historyTable tbody');
+
+        tbody.innerHTML = '';
+        filtered.forEach((row) => {
+            const clone = row.cloneNode(true);
+            tbody.appendChild(clone);
+        });
+
+        const title = document.getElementById('historyTitle');
+        if (title) {
+            title.textContent = area ? `Histórico de Leituras - ${area}` : 'Histórico de Leituras';
+        }
     }
 
     function updateMonitoringDetails(area) {
         const rows = Array.from(document.querySelectorAll('#historyTable tbody tr'));
-        const filtered = rows.filter(r => r.cells[1].textContent === area);
+        const filtered = rows.filter(r => r.cells[5].textContent.trim() === area);
         const content = document.getElementById('monitoringDetailsContent');
         
         content.style.animation = 'slideInLeftFast 0.3s ease-out';
@@ -396,12 +470,10 @@
         if(filtered.length === 0) {
             content.innerHTML = `<p><strong>Setor:</strong> ${area}</p><p>Nenhuma leitura registrada.</p>`;
         } else {
-            const okCount = filtered.filter(r => r.cells[5].textContent.includes('100%')).length;
             content.innerHTML = `
                 <p><strong>Setor:</strong> ${area}</p>
                 <p><strong>Total:</strong> ${filtered.length} leituras</p>
-                <p><strong>OK:</strong> ${okCount} | <strong>Erros:</strong> ${filtered.length - okCount}</p>
-                <ul>${filtered.map((r, i) => `<li style="animation: slideInLeftFast 0.3s ease-out ${i * 0.05}s backwards;">${r.cells[0].textContent} - ${r.cells[2].textContent}</li>`).join('')}</ul>
+                <ul>${filtered.map((r, i) => `<li style="animation: slideInLeftFast 0.3s ease-out ${i * 0.05}s backwards;">${r.cells[0].textContent} - ${r.cells[1].textContent} (${r.cells[3].textContent})</li>`).join('')}</ul>
             `;
         }
     }
@@ -433,16 +505,22 @@
             const value = row.cells[i].textContent;
             let input;
             
-            if((isOrder && i === 3) || (!isOrder && (i === 1 || i === 5))) {
+            if(!isOrder && i === 4) {
                 input = document.createElement('select');
-                const opts = (!isOrder && i === 1) ? ['Corte Laser', 'Usinagem', 'Soldagem', 'Montagem'] :
-                             (!isOrder && i === 5) ? ['100% (Lida)', 'Erro de Fluxo', 'Leitura fraca'] :
-                             ['Em andamento', 'Concluída', 'Pausada'];
-                opts.forEach(opt => {
+                ['Produção', 'Parada', 'Concluído', 'Pendente'].forEach(opt => {
                     const o = document.createElement('option');
                     o.value = opt;
                     o.textContent = opt;
                     o.selected = value.includes(opt);
+                    input.appendChild(o);
+                });
+            } else if(!isOrder && i === 5) {
+                input = document.createElement('select');
+                ['Corte Laser', 'Usinagem', 'Soldagem', 'Montagem'].forEach(opt => {
+                    const o = document.createElement('option');
+                    o.value = opt;
+                    o.textContent = opt;
+                    o.selected = value === opt;
                     input.appendChild(o);
                 });
             } else {
@@ -456,7 +534,7 @@
             row.cells[i].appendChild(input);
         }
         
-        const actionCell = row.cells[isOrder ? 6 : 6];
+        const actionCell = row.cells[6];
         actionCell.innerHTML = '';
         
         const saveBtn = document.createElement('button');
@@ -497,25 +575,20 @@
         row.style.animation = 'highlight 0.6s ease-in-out, bounce 0.6s ease-out';
         
         setTimeout(() => {
-            for(let i = 0; i < (isOrder ? 4 : 5); i++) {
+            for(let i = 0; i < 6; i++) {
                 row.cells[i].textContent = values[i];
                 row.cells[i].style.animation = 'popIn 0.3s ease-out';
             }
-            if(!isOrder) {
-                const badge = document.createElement('span');
-                badge.className = values[5] === '100% (Lida)' ? 'badge badge-ok' : 'badge badge-alert';
-                badge.textContent = values[5];
-                badge.style.animation = 'popIn 0.3s ease-out';
-                row.cells[5].innerHTML = '';
-                row.cells[5].appendChild(badge);
-            }
             row.dataset.editing = 'false';
-            const actionCell = row.cells[isOrder ? 6 : 6];
+            const actionCell = row.cells[6];
             actionCell.innerHTML = '';
             actionCell.appendChild(createRowActions(row, isOrder));
             row.classList.remove('row-saved');
             row.style.animation = 'checkmark 0.4s ease-out';
-            if(!isOrder) updateMonitoringDetails(document.getElementById('monitoringArea').value);
+            if(!isOrder) {
+                updateMonitoringCounts();
+                updateMonitoringDetails(document.getElementById('monitoringArea').value);
+            }
             if(isOrder) updateOrderStats();
         }, 300);
     }
@@ -553,52 +626,116 @@
         }
     }
 
+    function parseQrPayload(text) {
+        const raw = String(text || '').trim();
+        const result = {
+            peca: 'Não informado',
+            codigo: 'Não informado',
+            lote: 'Não informado',
+            data: 'Não informado',
+            status: 'Produção',
+            setor: 'Setor não informado'
+        };
+
+        if(!raw) return result;
+
+        const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+        const normalizedFields = {};
+
+        lines.forEach((line) => {
+            const match = line.match(/^([A-Za-zÀ-ÿ\s]+)\s*:\s*(.+)$/);
+            if(!match) return;
+            const key = match[1].trim().toLowerCase();
+            const value = match[2].trim();
+            if(key.includes('peça')) normalizedFields.peca = value;
+            else if(key.includes('código') || key.includes('codigo')) normalizedFields.codigo = value;
+            else if(key.includes('lote')) normalizedFields.lote = value;
+            else if(key.includes('data')) normalizedFields.data = value;
+            else if(key.includes('status')) normalizedFields.status = value;
+            else if(key.includes('setor') || key.includes('local')) normalizedFields.setor = value;
+        });
+
+        if(normalizedFields.peca) result.peca = normalizedFields.peca;
+        if(normalizedFields.codigo) result.codigo = normalizedFields.codigo;
+        if(normalizedFields.lote) result.lote = normalizedFields.lote;
+        if(normalizedFields.data) result.data = normalizedFields.data;
+        if(normalizedFields.status) result.status = normalizedFields.status;
+        if(normalizedFields.setor) result.setor = normalizedFields.setor;
+
+        return result;
+    }
+
+    function renderReadingSummary(reading, setor) {
+        const summary = document.getElementById('monitoringSummary');
+        summary.style.animation = 'slideInLeftFast 0.3s ease-out';
+        summary.innerHTML = `
+            <strong>Última leitura:</strong>
+            <div class="reading-card">
+                <div class="reading-item"><strong>Peça</strong><span>${reading.peca}</span></div>
+                <div class="reading-item"><strong>Código</strong><span>${reading.codigo}</span></div>
+                <div class="reading-item"><strong>Lote</strong><span>${reading.lote}</span></div>
+                <div class="reading-item"><strong>Data</strong><span>${reading.data}</span></div>
+                <div class="reading-item"><strong>Status</strong><span>${reading.status}</span></div>
+                <div class="reading-item"><strong>Setor</strong><span>${reading.setor || setor}</span></div>
+            </div>`;
+        const detail = document.getElementById('monitoringDetailsContent');
+        detail.innerHTML = `
+            <p><strong>Setor:</strong> ${reading.setor || setor}</p>
+            <p><strong>Peça:</strong> ${reading.peca}</p>
+            <p><strong>Código:</strong> ${reading.codigo}</p>
+            <p><strong>Lote:</strong> ${reading.lote}</p>
+            <p><strong>Data:</strong> ${reading.data}</p>
+            <p><strong>Status:</strong> ${reading.status}</p>
+        `;
+    }
+
     function addScanEntry(fromQr = false) {
+        const peca = document.getElementById('scanPeca').value.trim();
         const codigo = document.getElementById('scanCodigo').value.trim();
+        const lote = document.getElementById('scanLote').value.trim();
+        const data = document.getElementById('scanData').value.trim();
+        const status = document.getElementById('scanStatus').value;
         const setor = document.getElementById('scanSetor').value;
-        const pecaField = document.getElementById('scanPeca');
-        const peca = (pecaField && pecaField.value.trim()) ? pecaField.value.trim() : 'QR Code Detectado';
-        const integridade = document.getElementById('scanIntegridade').value;
-        const ordem = document.getElementById('scanOrdem').value;
-        const ordemSelect = document.getElementById('scanOrdem');
-        const ordemTexto = ordemSelect.selectedOptions[0]?.textContent || '';
-        
-        if(!codigo || !peca || !ordem) {
+        const ordem = document.getElementById('scanOrdem')?.value || '';
+
+        if(!codigo || !peca) {
             if(!fromQr) {
                 document.getElementById('scanCodigo').style.animation = 'shake 0.3s ease-out';
-                alert('Preencha DataMatrix, Peça e selecione uma ordem');
+                alert('Preencha pelo menos Peça e Código');
             }
             return;
         }
         
-        const now = new Date();
-        const hora = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-        
         const row = document.querySelector('#historyTable tbody').insertRow(0);
         row.style.animation = 'slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
         
-        row.insertCell(0).textContent = codigo;
-        row.insertCell(1).textContent = setor;
-        row.insertCell(2).textContent = peca;
-        row.insertCell(3).textContent = hora;
-        row.insertCell(4).textContent = ordemTexto;
-        
-        const badge = document.createElement('span');
-        badge.className = integridade === '100% (Lida)' ? 'badge badge-ok' : 'badge badge-alert';
-        badge.textContent = integridade;
-        badge.style.animation = 'popIn 0.3s ease-out';
-        row.insertCell(5).appendChild(badge);
+        row.insertCell(0).textContent = peca;
+        row.insertCell(1).textContent = codigo;
+        row.insertCell(2).textContent = lote || '—';
+        row.insertCell(3).textContent = data || new Date().toLocaleDateString('pt-BR');
+        row.insertCell(4).textContent = status;
+        row.insertCell(5).textContent = setor;
         row.insertCell(6).appendChild(createRowActions(row));
         
+        const reading = { peca, codigo, lote: lote || '—', data: data || new Date().toLocaleDateString('pt-BR'), status, setor };
+        window.lastReadingData = reading;
+        renderReadingSummary(reading, setor);
+        updateMonitoringCounts();
+        updateHistoryTable(setor);
+        updateMonitoringDetails(setor);
+
         document.getElementById('scanCodigo').value = '';
         document.getElementById('scanCodigo').style.animation = 'none';
-        if(!fromQr && pecaField) {
-            pecaField.value = '';
-            pecaField.style.animation = 'none';
-        }
+        document.getElementById('scanPeca').value = '';
+        document.getElementById('scanPeca').style.animation = 'none';
+        document.getElementById('scanLote').value = '';
+        document.getElementById('scanData').value = '';
+        document.getElementById('scanStatus').value = 'Produção';
+        document.getElementById('scanSetor').value = setor;
         
-        incrementOrderPieces(ordem);
-        updateMonitoringDetails(setor);
+        if(ordem) {
+            incrementOrderPieces(ordem);
+        }
     }
 
     function incrementOrderPieces(ordem) {
@@ -813,35 +950,30 @@
             return;
         }
         lastQrRead = { text, timestamp: now };
+        const parsed = parseQrPayload(text);
 
         const resultDiv = document.getElementById('qr-result');
-        resultDiv.textContent = text;
+        resultDiv.innerHTML = `
+            <strong>${parsed.peca}</strong> · ${parsed.codigo}
+        `;
         resultDiv.style.animation = 'popIn 0.4s ease-out';
         
-        document.getElementById('qr-last').textContent = text;
+        document.getElementById('qr-last').textContent = `${parsed.peca} · ${parsed.codigo}`;
         document.getElementById('qr-last').style.animation = 'bounce 0.4s ease-out';
         
-        const field = document.getElementById('scanCodigo');
-        if(field) field.value = text;
-        const setor = document.getElementById('monitoringArea').value || 'Corte Laser';
-        document.getElementById('scanSetor').value = setor;
-        selectFirstOrderIfNeeded();
-        const pecaField = document.getElementById('scanPeca');
-        if(pecaField && !pecaField.value.trim()) pecaField.value = 'QR Code Detectado';
+        document.getElementById('scanPeca').value = parsed.peca;
+        document.getElementById('scanCodigo').value = parsed.codigo;
+        document.getElementById('scanLote').value = parsed.lote;
+        document.getElementById('scanData').value = parsed.data;
+        document.getElementById('scanStatus').value = parsed.status || 'Produção';
+        document.getElementById('scanSetor').value = parsed.setor.includes('Usinagem') ? 'Usinagem' : 'Corte Laser';
+        const setor = document.getElementById('scanSetor').value;
+        document.getElementById('monitoringArea').value = setor;
+        window.lastReadingData = parsed;
+        renderReadingSummary(parsed, setor);
         addScanEntry(true);
-        const timeNow = new Date();
-        const summary = document.getElementById('monitoringSummary');
-        summary.style.animation = 'slideInLeftFast 0.3s ease-out';
-        summary.innerHTML = `<strong>Último Scan:</strong> Código [${text}] em ${setor} às ${timeNow.getHours().toString().padStart(2,'0')}:${timeNow.getMinutes().toString().padStart(2,'0')}`;
         openTab(null, 'dashboard');
         stopQrScanner(true);
-    }
-
-    function selectFirstOrderIfNeeded() {
-        const ordemSelect = document.getElementById('scanOrdem');
-        if (ordemSelect && ordemSelect.value === '' && ordemSelect.options.length > 1) {
-            ordemSelect.selectedIndex = 1;
-        }
     }
 
     function startQrScanner() {
@@ -879,8 +1011,25 @@
         setTimeout(() => toggle.classList.remove('rotating'), 600);
     }
 
+    // Sistema de Autenticação
     document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('tsea_token');
+        const nomeUsuario = localStorage.getItem('tsea_nome_usuario');
+
+        if (!token) {
+            alert('Acesso negado! Por favor, faça login para acessar o sistema.');
+            window.location.href = '/';
+            return;
+        }
+
+        const nomeElement = document.getElementById('nomeUsuario');
+        if (nomeElement) {
+            nomeElement.textContent = nomeUsuario || 'Usuário';
+        }
+
         selectMonitoringArea('Corte Laser');
+        updateMonitoringCounts();
+        updateHistoryTable();
         updateDeviceLabel();
         updateOrderStats();
         updateOrderSelect();
@@ -889,6 +1038,13 @@
             el.style.animation = `slideInLeft 0.4s ease-out ${i * 0.1}s backwards`;
         });
     });
+    function fazerLogout() {
+        if (confirm('Tem certeza que deseja sair?')) {
+            localStorage.removeItem('tsea_token');
+            localStorage.removeItem('tsea_nome_usuario');
+            window.location.href = '/';
+        }
+    }
 </script>
 
 </body>
