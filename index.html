@@ -1,1051 +1,175 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrackMetal - Rastreamento por DataMatrix</title>
+    <title>Login - TrackMetal</title>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --warning: #e74c3c; --bg: #ffffff; --light: #ecf0f1; --border: #bdc3c7; --text: #2c3e50; }
         .dark { --primary: #ecf0f1; --accent: #3498db; --success: #2ecc71; --warning: #e74c3c; --bg: #1a1a1a; --light: #2d2d2d; --border: #404040; --text: #ecf0f1; }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { font-size: 16px; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
         
-        .container { display: flex; min-height: 100vh; max-width: 1200px; margin: 0 auto; overflow: hidden; }
-        nav { width: 250px; background: var(--light); padding: 20px; border-right: 1px solid var(--border); overflow-y: auto; animation: slideInLeft 0.4s ease-out; }
-        nav h1 { font-size: 20px; color: var(--accent); margin-bottom: 5px; animation: slideInLeft 0.5s ease-out; }
-        nav p { font-size: 12px; opacity: 0.6; margin-bottom: 30px; animation: slideInLeft 0.6s ease-out; }
-        .menu-item { padding: 12px; margin: 8px 0; cursor: pointer; border-radius: 4px; transition: all 0.3s ease; border-left: 3px solid transparent; animation: slideInLeft 0.5s ease-out; }
-        .menu-item:hover { background: rgba(52, 152, 219, 0.1); transform: translateX(5px); }
-        .menu-item.active { background: rgba(52, 152, 219, 0.2); border-left-color: var(--accent); color: var(--accent); font-weight: 500; animation: scaleIn 0.3s ease-out; }
-        .menu-icon { display: none; }
+        .login-container { max-width: 420px; width: 100%; animation: slideInUp 0.4s ease-out; }
         
-        main { flex: 1; overflow-y: auto; padding: 20px; position: relative; }
-        h2 { font-size: 20px; margin-bottom: 15px; }
-        h3 { font-size: 16px; margin: 15px 0 10px; }
+        .login-card { background: var(--light); padding: 40px 30px; border-radius: 8px; border: 1px solid rgba(52, 152, 219, 0.2); box-shadow: 0 4px 20px rgba(44, 62, 80, 0.1); }
         
-        .theme-toggle { position: absolute; top: 15px; right: 15px; font-size: 18px; cursor: pointer; background: var(--light); border: 1px solid var(--border); border-radius: 4px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; animation: slideInRight 0.4s ease-out; }
+        .logo-section { text-align: center; margin-bottom: 30px; animation: slideInDown 0.4s ease-out; }
+        .logo-section h1 { font-size: 32px; color: var(--accent); margin-bottom: 5px; }
+        .logo-section p { font-size: 13px; color: rgba(44, 62, 80, 0.6); }
+        
+        h2 { font-size: 24px; margin-bottom: 25px; color: var(--primary); text-align: center; animation: slideInTopFast 0.4s ease-out; }
+        
+        .theme-toggle { position: fixed; top: 15px; right: 15px; font-size: 18px; cursor: pointer; background: var(--light); border: 1px solid var(--border); border-radius: 4px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; animation: slideInRight 0.4s ease-out; z-index: 100; }
         .theme-toggle:hover { background: var(--accent); color: white; transform: scale(1.1); }
-        .theme-toggle.rotating { animation: rotateToggle 0.6s ease-in-out; }
         
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: slideInTopFast 0.4s ease-out; }
+        .form-group { margin-bottom: 20px; animation: slideInUp 0.4s ease-out; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 8px; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit; transition: all 0.3s ease; }
+        input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15); }
+        input::placeholder { color: rgba(44, 62, 80, 0.5); }
+        
+        .message-box { padding: 12px 14px; border-radius: 4px; margin-bottom: 20px; font-size: 13px; display: none; animation: slideInDown 0.3s ease-out; }
+        .message-box.error { background: rgba(231, 76, 60, 0.15); color: #c0392b; border: 1px solid rgba(231, 76, 60, 0.3); border-left: 3px solid #e74c3c; }
+        .message-box.success { background: rgba(39, 174, 96, 0.15); color: #27ae60; border: 1px solid rgba(39, 174, 96, 0.3); border-left: 3px solid #27ae60; }
+        .message-box.show { display: block; }
+        
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 4px; background: var(--accent); color: white; cursor: pointer; font-weight: 600; transition: all 0.3s ease; font-size: 14px; margin-top: 10px; animation: slideInUp 0.5s ease-out; }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .btn-secondary { background: var(--border); color: var(--primary); margin-top: 8px; }
+        .btn-secondary:hover { background: rgba(52, 152, 219, 0.1); box-shadow: 0 6px 12px rgba(189, 195, 199, 0.2); }
+        
+        .register-link { text-align: center; margin-top: 20px; font-size: 13px; animation: slideInUp 0.6s ease-out; }
+        .register-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .register-link a:hover { text-decoration: underline; }
+        
+        .loading { display: none; text-align: center; margin-top: 15px; }
+        .spinner { border: 2px solid rgba(52, 152, 219, 0.2); border-top: 2px solid var(--accent); border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; margin: 0 auto; }
+        
         @keyframes slideInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes slideInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-5px); } }
-        @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
-        @keyframes rotateToggle { 0% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.1) rotate(180deg); } 100% { transform: scale(1) rotate(360deg); } }
-        @keyframes highlight { 0% { background: rgba(39, 174, 96, 0.3); } 50% { background: rgba(39, 174, 96, 0.15); } 100% { background: transparent; } }
-        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8); } 50% { transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        @keyframes swing { 0% { transform: rotate(0deg); } 25% { transform: rotate(3deg); } 75% { transform: rotate(-3deg); } 100% { transform: rotate(0deg); } }
         @keyframes slideInTopFast { 0% { opacity: 0; transform: translateY(-15px); } 100% { opacity: 1; transform: translateY(0); } }
-        @keyframes slideOutTopFast { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-15px); } }
-        @keyframes expandHeight { 0% { opacity: 0; max-height: 0; } 100% { opacity: 1; max-height: 500px; } }
-        @keyframes shrinkHeight { 0% { opacity: 1; max-height: 500px; } 100% { opacity: 0; max-height: 0; } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 5px rgba(52, 152, 219, 0.3); } 50% { box-shadow: 0 0 15px rgba(52, 152, 219, 0.6); } }
-        @keyframes checkmark { 0% { opacity: 0; transform: scale(0) rotate(-45deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
-        @keyframes ripple { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(4); opacity: 0; } }
-        @keyframes slideInLeftFast { 0% { opacity: 0; transform: translateX(-15px); } 100% { opacity: 1; transform: translateX(0); } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0.7; } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 15px 0; }
-        .card { background: var(--bg); padding: 15px; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); text-align: center; animation: slideInUp 0.4s ease-out; }
-        .card:hover { border-color: var(--accent); transform: translateY(-5px); box-shadow: 0 8px 16px rgba(52, 152, 219, 0.15); }
-        .card.selected { background: var(--light); border-color: var(--accent); animation: scaleIn 0.3s ease-out; }
-        .card h3 { font-size: 12px; margin: 0 0 8px; }
-        .card p { font-size: 24px; font-weight: 600; margin: 0; color: var(--accent); }
-        
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 15px 0; }
-        .form-row { display: flex; flex-direction: column; gap: 4px; }
-        .form-row label { font-size: 13px; font-weight: 500; }
-        
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit; transition: all 0.3s ease; }
-        input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2); transform: scale(1.01); animation: glow 0.6s ease-in-out; }
-        input:disabled { background: var(--light); cursor: not-allowed; opacity: 0.7; }
-        
-        .btn { padding: 10px 16px; border: none; border-radius: 4px; background: var(--accent); color: white; cursor: pointer; font-weight: 500; transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3); }
-        .btn:active { transform: translateY(0); animation: ripple 0.6s ease-out; }
-        .btn-sm { padding: 6px 10px; font-size: 12px; }
-        .btn-success { background: var(--success); }
-        .btn-success:hover { box-shadow: 0 6px 12px rgba(39, 174, 96, 0.3); }
-        .btn-warning { background: var(--warning); }
-        .btn-warning:hover { box-shadow: 0 6px 12px rgba(231, 76, 60, 0.3); }
-        
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; animation: fadeIn 0.4s ease-out; }
-        th { background: var(--light); padding: 10px; text-align: left; font-weight: 600; font-size: 13px; animation: slideInDown 0.4s ease-out; }
-        td { padding: 10px; border-bottom: 1px solid var(--border); }
-        tbody tr { animation: slideInUp 0.4s ease-out; }
-        tbody tr:hover { background: rgba(52, 152, 219, 0.1); transition: all 0.2s ease; }
-        
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 500; animation: scaleIn 0.3s ease-out; }
-        .badge-ok { background: rgba(39, 174, 96, 0.2); color: var(--success); }
-        .badge-alert { background: rgba(231, 76, 60, 0.2); color: var(--warning); }
-        
-        .device-banner { margin: 0 0 20px; padding: 10px 14px; background: rgba(52, 152, 219, 0.12); color: var(--accent); border-radius: 6px; border: 1px solid rgba(52, 152, 219, 0.2); font-size: 0.95rem; display: inline-block; animation: slideInDown 0.35s ease-out; }
-        .info-box { background: var(--light); padding: 12px; border-radius: 4px; border-left: 3px solid var(--accent); margin: 15px 0; font-size: 14px; animation: slideInLeft 0.4s ease-out; }
-        .details-panel { display: none; background: var(--light); padding: 15px; border-radius: 4px; margin: 15px 0; animation: slideInDown 0.3s ease-out; }
-        .reading-card { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 8px; }
-        .reading-item { background: rgba(255,255,255,0.55); padding: 10px; border-radius: 6px; border: 1px solid rgba(52, 152, 219, 0.15); }
-        .reading-item strong { display: block; font-size: 12px; color: var(--accent); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
-        .reading-item span { font-size: 14px; font-weight: 600; }
-        .dark .reading-item { background: rgba(45,45,45,0.85); }
-        .details-panel.active { display: block; animation: expandHeight 0.4s ease-out; }
-        
-        .action-buttons { display: flex; gap: 6px; flex-wrap: wrap; animation: slideInUp 0.3s ease-out; }
-        .row-saved { animation: highlight 0.6s ease-in-out, bounce 0.6s ease-out; }
-        .fade-out { animation: fadeOut 0.2s ease-out; }
-        .input-field { animation: popIn 0.3s ease-out; }
-        
-        .orders-stats { margin: 20px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
-        .stat-card { background: var(--light); padding: 12px; border-radius: 4px; text-align: center; border: 1px solid var(--border); transition: all 0.3s ease; }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(52, 152, 219, 0.15); }
-        .stat-card p:first-child { font-size: 11px; opacity: 0.7; margin-bottom: 8px; }
-        .stat-card p:last-child { font-size: 20px; font-weight: 600; }
-        
-        .progress-bar { width: 100%; height: 6px; background: var(--light); border-radius: 3px; overflow: hidden; margin-top: 5px; }
-        .progress-fill { height: 100%; background: var(--success); border-radius: 3px; transition: width 0.3s ease; animation: slideInLeft 0.4s ease-out; }
-        
-        @media (max-width: 1024px) {
-            html { font-size: 15px; }
-            .container { height: auto; }
-            .card-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .form-grid { grid-template-columns: 1fr 1fr; }
-            .theme-toggle { top: 12px; right: 12px; }
-            .menu-item { font-size: 0.95rem; }
-        }
-
-        @media (max-width: 768px) {
-            html { font-size: 14px; }
-            .container { flex-direction: column; }
-            nav { width: 100%; height: auto; max-height: none; border-right: none; border-bottom: 1px solid var(--border); padding: 15px; display: block; animation: slideInDown 0.3s ease-out; }
-            nav.mobile-open { display: block; }
-            main { padding: 15px; animation: slideInUp 0.3s ease-out; }
-            h2 { font-size: 1.25rem; }
-            h3 { font-size: 1rem; }
-            .card-grid { grid-template-columns: 1fr; gap: 12px; }
-            .form-grid { grid-template-columns: 1fr; }
-            .orders-stats { grid-template-columns: repeat(2, 1fr); }
-            .card { padding: 14px; }
-            .card h3 { font-size: 0.95rem; }
-            .card p { font-size: 1.2rem; }
-            table { font-size: 12px; }
-            th, td { padding: 8px; }
-            .menu-icon { display: block; margin-bottom: 15px; font-size: 18px; cursor: pointer; transition: all 0.3s ease; }
-            .action-buttons { gap: 4px; }
-            .btn-sm { padding: 5px 8px; font-size: 11px; }
-        }
-
-        @media (max-width: 480px) {
-            html { font-size: 13px; }
-            body { padding: 5px; }
-            main { padding: 12px; }
-            .theme-toggle { width: 30px; height: 30px; top: 10px; right: 10px; }
-            .info-box, .details-panel, .card, input, select, .btn, table { font-size: 0.95rem; }
-            .info-box { padding: 10px; }
-            .btn { width: 100%; }
-            .card-grid { gap: 10px; }
-            .card p { font-size: 1.1rem; }
-            .orders-stats { grid-template-columns: 1fr; }
-            #qr-reader { min-height: 240px; }
-        }
+        .dark .login-card { background: var(--light); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
     </style>
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
-<script>
-    const token = localStorage.getItem('token_tsea');
-
-    if (!token) {
-        alert('Acesso negado! Por favor, faça login primeiro.');
-        window.location.href = 'loginstate.html';
-    }
-</script>
-
-<div class="container">
-<nav id="nav">
-    <span class="menu-icon" onclick="toggleNav()">☰</span>
-    <h1>TrackMetal</h1>
-    <p>Marcação Laser & DataMatrix</p>
-    <div id="usuarioInfo" style="padding: 12px; background: rgba(52, 152, 219, 0.1); border-radius: 4px; margin-bottom: 20px; font-size: 13px; animation: slideInLeft 0.5s ease-out;">
-        <p style="margin: 0 0 8px; opacity: 0.7;">Logado como:</p>
-        <p style="margin: 0; font-weight: 600;" id="nomeUsuario">—</p>
-        <button onclick="fazerLogout()" style="width: 100%; margin-top: 10px; padding: 8px; background: #e74c3c; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">🚪 Sair</button>
-    </div>
+    <div class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">🌙</div>
     
-    <div class="menu-item active" data-target="dashboard" onclick="openTab(event, 'dashboard')">Monitoramento</div>
-    <div class="menu-item" data-target="consulta" onclick="openTab(event, 'consulta')">Scan DataMatrix</div>
-    <div class="menu-item" data-target="qr" onclick="openTab(event, 'qr')">Ler QR Code</div>
-    <div class="menu-item" data-target="ordens" onclick="openTab(event, 'ordens')">Ordens</div>
-</nav>
-
-<main>
-    <div id="themeToggle" class="theme-toggle" onclick="toggleTheme()">☀️</div>
-    
-    <div id="dashboard" class="tab-content active">
-        <h2>Fluxo de Produção</h2>
-        <div class="card-grid">
-            <div class="card selected" onclick="selectMonitoringArea('Corte Laser')"><h3>Corte Laser</h3><p id="countCorteLaser">0</p></div>
-            <div class="card" onclick="selectMonitoringArea('Usinagem')"><h3>Usinagem</h3><p id="countUsinagem">0</p></div>
-            <div class="card" onclick="selectMonitoringArea('Soldagem')"><h3>Soldagem</h3><p id="countSoldagem">0</p></div>
-            <div class="card" onclick="selectMonitoringArea('Montagem')"><h3>Montagem</h3><p id="countMontagem">0</p></div>
-        </div>
-
-        <div class="form-row" style="margin-bottom: 15px;">
-            <label for="monitoringArea">Setor:</label>
-            <select id="monitoringArea" onchange="selectMonitoringArea(this.value)">
-                <option value="Corte Laser">Corte Laser</option>
-                <option value="Usinagem">Usinagem</option>
-                <option value="Soldagem">Soldagem</option>
-                <option value="Montagem">Montagem</option>
-            </select>
-        </div>
-
-        <div class="info-box" id="monitoringSummary">
-            <strong>Último Scan:</strong> Código [DM-A102] em Soldagem às 14:45
-        </div>
-
-        <button class="btn" onclick="toggleDetails()">Detalhes Avançados</button>
-        <div id="monitoringDetails" class="details-panel">
-            <h3>Informações do Setor</h3>
-            <div id="monitoringDetailsContent">
-                <p><strong>Nenhuma leitura</strong></p>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-section">
+                <h1>🏭 TrackMetal</h1>
+                <p>Rastreamento por DataMatrix</p>
+            </div>
+            
+            <h2>Faça Login</h2>
+            
+            <div id="messageBox" class="message-box"></div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="cpf">CPF (Apenas números):</label>
+                    <input type="text" id="cpf" name="cpf" placeholder="00000000000" maxlength="11" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="senha">Senha:</label>
+                    <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+                </div>
+                
+                <button type="submit" class="btn" id="submitBtn">🔓 Entrar</button>
+                <button type="reset" class="btn btn-secondary">↻ Limpar</button>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                </div>
+            </form>
+            
+            <div class="register-link">
+                Não tem uma conta? <a href="/register">Cadastre-se aqui</a>
             </div>
         </div>
-
-        <h3 id="historyTitle">Histórico de Leituras</h3>
-        <table id="historyTable">
-            <thead><tr><th>Peça</th><th>Código</th><th>Lote</th><th>Data</th><th>Status</th><th>Setor</th><th>Ações</th></tr></thead>
-            <tbody></tbody>
-        </table>
     </div>
 
-    <div id="consulta" class="tab-content">
-        <h2>Rastreabilidade DataMatrix</h2>
-        <p>Aponte o leitor para o código laser.</p>
-        <input id="scannerInput" type="text" placeholder="Aguardando scanner...">
-        
-        <h3>Adicionar Leitura</h3>
-        <div class="form-grid">
-            <div class="form-row">
-                <label for="scanPeca">Peça</label>
-                <input id="scanPeca" type="text" placeholder="Rotor">
-            </div>
-            <div class="form-row">
-                <label for="scanCodigo">Código</label>
-                <input id="scanCodigo" type="text" placeholder="TM-2026-000154">
-            </div>
-            <div class="form-row">
-                <label for="scanLote">Lote</label>
-                <input id="scanLote" type="text" placeholder="L202606">
-            </div>
-            <div class="form-row">
-                <label for="scanData">Data</label>
-                <input id="scanData" type="text" placeholder="30/06/2026">
-            </div>
-            <div class="form-row">
-                <label for="scanStatus">Status</label>
-                <select id="scanStatus">
-                    <option value="Produção">Produção</option>
-                    <option value="Parada">Parada</option>
-                    <option value="Concluído">Concluído</option>
-                    <option value="Pendente">Pendente</option>
-                </select>
-            </div>
-            <div class="form-row">
-                <label for="scanSetor">Setor</label>
-                <select id="scanSetor">
-                    <option value="Corte Laser">Corte Laser</option>
-                    <option value="Usinagem">Usinagem</option>
-                    <option value="Soldagem">Soldagem</option>
-                    <option value="Montagem">Montagem</option>
-                </select>
-            </div>
-        </div>
-        <button class="btn" onclick="addScanEntry()">Adicionar Scan</button>
-    </div>
-
-    <div id="qr" class="tab-content">
-        <h2>Leitor QR Code</h2>
-        <p>Clique para iniciar câmera.</p>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <button class="btn" onclick="startQrScanner()">Iniciar</button>
-            <button class="btn" onclick="stopQrScanner()">Parar</button>
-            <div id="qr-result" style="flex: 1; padding: 10px; background: var(--light); border-radius: 4px; display: flex; align-items: center;"></div>
-        </div>
-        <div id="qr-reader" style="width: 100%; max-width: 100%;"></div>
-        <p style="margin-top: 10px; font-size: 13px;">Último scan: <strong id="qr-last">—</strong></p>
-    </div>
-
-    <div id="ordens" class="tab-content">
-        <h2>Gestão de Ordens</h2>
-        <div class="form-grid">
-            <div class="form-row">
-                <label for="orderOp">OP (Gerado Automaticamente)</label>
-                <input id="orderOp" type="text" placeholder="OP-0001" disabled>
-            </div>
-            <div class="form-row">
-                <label for="orderCliente">Cliente</label>
-                <input id="orderCliente" type="text" placeholder="Cliente XYZ">
-            </div>
-            <div class="form-row">
-                <label for="orderPecas">Total de Peças</label>
-                <input id="orderPecas" type="number" placeholder="50" min="1">
-            </div>
-            <div class="form-row">
-                <label for="orderStatus">Status</label>
-                <select id="orderStatus">
-                    <option value="Em andamento">Em andamento</option>
-                    <option value="Concluída">Concluída</option>
-                    <option value="Pausada">Pausada</option>
-                </select>
-            </div>
-        </div>
-        <button class="btn" onclick="addOrderEntry()" style="animation: slideInUp 0.4s ease-out 0.2s backwards;">Adicionar Ordem</button>
-        
-        <div class="orders-stats">
-            <div class="stat-card" style="animation: popIn 0.4s ease-out 0.3s backwards;">
-                <p>Total</p>
-                <p style="color: var(--accent);" id="totalOrders">0</p>
-            </div>
-            <div class="stat-card" style="animation: popIn 0.4s ease-out 0.35s backwards;">
-                <p>Em andamento</p>
-                <p style="color: #f39c12;" id="inProgress">0</p>
-            </div>
-            <div class="stat-card" style="animation: popIn 0.4s ease-out 0.4s backwards;">
-                <p>Concluídas</p>
-                <p style="color: var(--success);" id="completed">0</p>
-            </div>
-            <div class="stat-card" style="animation: popIn 0.4s ease-out 0.45s backwards;">
-                <p>Pausadas</p>
-                <p style="color: var(--warning);" id="paused">0</p>
-            </div>
-        </div>
-
-        <table id="ordersTable">
-            <thead><tr><th>OP</th><th>Cliente</th><th>Marcadas</th><th>Total</th><th>Progresso</th><th>Status</th><th>Ações</th></tr></thead>
-            <tbody></tbody>
-        </table>
-    </div>
-</main>
-</div>
-
-<script>
-    const monitoringData = {
-        'Corte Laser': { code: 'TM-2026-000154', setor: 'Corte Laser', time: '14:22' },
-        'Usinagem': { code: 'TM-2026-000154', setor: 'Setor de Usinagem', time: '14:38' },
-        'Soldagem': { code: 'TM-2026-000154', setor: 'Setor de Soldagem', time: '14:45' },
-        'Montagem': { code: 'TM-2026-000154', setor: 'Setor de Montagem', time: '14:52' }
-    };
-
-    function toggleNav() {
-        const nav = document.getElementById('nav');
-        nav.style.animation = nav.classList.contains('mobile-open') ? 'slideOutTopFast 0.3s ease-out' : 'slideInDown 0.3s ease-out';
-        nav.classList.toggle('mobile-open');
-    }
-
-    function openTab(evt, tabName) {
-        document.querySelectorAll('.tab-content').forEach((el) => {
-            if(el.classList.contains('active')) {
-                el.style.animation = 'slideOutTopFast 0.2s ease-out forwards';
-                el.addEventListener('animationend', () => {
-                    el.classList.remove('active');
-                }, { once: true });
-            }
-        });
-        
-        document.querySelectorAll('.menu-item').forEach(el => {
-            el.style.animation = 'none';
-            el.classList.remove('active');
-        });
-        
-        const activeTab = document.getElementById(tabName);
-        activeTab.classList.add('active');
-        activeTab.style.animation = 'slideInTopFast 0.4s ease-out';
-        
-        if(evt && evt.currentTarget) {
-            evt.currentTarget.classList.add('active');
-            evt.currentTarget.style.animation = 'scaleIn 0.3s ease-out';
-            toggleNav();
-        } else {
-            const menuItem = document.querySelector(`.menu-item[data-target="${tabName}"]`);
-            if(menuItem) {
-                menuItem.classList.add('active');
-                menuItem.style.animation = 'scaleIn 0.3s ease-out';
+    <script>
+        function showMessage(text, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = text;
+            messageBox.className = `message-box ${type} show`;
+            if (type === 'success') {
+                setTimeout(() => messageBox.classList.remove('show'), 3000);
             }
         }
-    }
 
-    function selectMonitoringArea(area) {
-        document.querySelectorAll('.card').forEach(card => {
-            if(card.textContent.includes(area)) {
-                card.classList.add('selected');
-                card.style.animation = 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const toggleBtn = document.querySelector('.theme-toggle');
+            if (document.body.classList.contains('dark')) {
+                toggleBtn.textContent = '☀️';
             } else {
-                card.style.animation = 'fadeOut 0.2s ease-out';
-                setTimeout(() => {
-                    card.classList.remove('selected');
-                    card.style.animation = 'none';
-                }, 200);
+                toggleBtn.textContent = '🌙';
             }
-        });
-        
-        document.getElementById('monitoringArea').value = area;
-        const currentReading = window.lastReadingData || null;
-        const summary = document.getElementById('monitoringSummary');
-        summary.style.animation = 'slideInLeftFast 0.3s ease-out';
-        updateHistoryTable(area);
-        if(currentReading) {
-            summary.innerHTML = `
-                <strong>Última leitura:</strong>
-                <div class="reading-card">
-                    <div class="reading-item"><strong>Peça</strong><span>${currentReading.peca}</span></div>
-                    <div class="reading-item"><strong>Código</strong><span>${currentReading.codigo}</span></div>
-                    <div class="reading-item"><strong>Lote</strong><span>${currentReading.lote}</span></div>
-                    <div class="reading-item"><strong>Data</strong><span>${currentReading.data}</span></div>
-                    <div class="reading-item"><strong>Status</strong><span>${currentReading.status}</span></div>
-                    <div class="reading-item"><strong>Setor</strong><span>${currentReading.setor || area}</span></div>
-                </div>`;
-        } else {
-            const data = monitoringData[area];
-            summary.innerHTML = `<strong>Último Scan:</strong> Código [${data.code}] em ${data.setor} às ${data.time}`;
         }
-        updateMonitoringDetails(area);
-    }
 
-    function updateMonitoringCounts() {
-        const counts = {
-            'Corte Laser': 0,
-            'Usinagem': 0,
-            'Soldagem': 0,
-            'Montagem': 0
-        };
-
-        document.querySelectorAll('#historyTable tbody tr').forEach((row) => {
-            const setor = row.cells[5].textContent.trim();
-            if (counts[setor] !== undefined) {
-                counts[setor] += 1;
-            }
-        });
-
-        document.getElementById('countCorteLaser').textContent = counts['Corte Laser'];
-        document.getElementById('countUsinagem').textContent = counts['Usinagem'];
-        document.getElementById('countSoldagem').textContent = counts['Soldagem'];
-        document.getElementById('countMontagem').textContent = counts['Montagem'];
-    }
-
-    function updateHistoryTable(area = null) {
-        const rows = Array.from(document.querySelectorAll('#historyTable tbody tr'));
-        const filtered = area ? rows.filter((row) => row.cells[5].textContent.trim() === area) : rows;
-        const tbody = document.querySelector('#historyTable tbody');
-
-        tbody.innerHTML = '';
-        filtered.forEach((row) => {
-            const clone = row.cloneNode(true);
-            tbody.appendChild(clone);
-        });
-
-        const title = document.getElementById('historyTitle');
-        if (title) {
-            title.textContent = area ? `Histórico de Leituras - ${area}` : 'Histórico de Leituras';
-        }
-    }
-
-    function updateMonitoringDetails(area) {
-        const rows = Array.from(document.querySelectorAll('#historyTable tbody tr'));
-        const filtered = rows.filter(r => r.cells[5].textContent.trim() === area);
-        const content = document.getElementById('monitoringDetailsContent');
-        
-        content.style.animation = 'slideInLeftFast 0.3s ease-out';
-        
-        if(filtered.length === 0) {
-            content.innerHTML = `<p><strong>Setor:</strong> ${area}</p><p>Nenhuma leitura registrada.</p>`;
-        } else {
-            content.innerHTML = `
-                <p><strong>Setor:</strong> ${area}</p>
-                <p><strong>Total:</strong> ${filtered.length} leituras</p>
-                <ul>${filtered.map((r, i) => `<li style="animation: slideInLeftFast 0.3s ease-out ${i * 0.05}s backwards;">${r.cells[0].textContent} - ${r.cells[1].textContent} (${r.cells[3].textContent})</li>`).join('')}</ul>
-            `;
-        }
-    }
-
-    function createRowActions(row, isOrder = false) {
-        const div = document.createElement('div');
-        div.className = 'action-buttons';
-        
-        const editBtn = document.createElement('button');
-        editBtn.className = 'btn btn-sm';
-        editBtn.textContent = 'Editar';
-        editBtn.style.animation = 'slideInLeftFast 0.3s ease-out';
-        editBtn.onclick = () => {
-            editBtn.style.animation = 'swing 0.4s ease-in-out';
-            startEdit(row, isOrder);
-        };
-        div.appendChild(editBtn);
-        return div;
-    }
-
-    function startEdit(row, isOrder = false) {
-        if(row.dataset.editing === 'true') return;
-        row.dataset.editing = 'true';
-        row.style.animation = 'glow 0.3s ease-out';
-        const max = isOrder ? 4 : 6;
-        
-        for(let i = 0; i < max; i++) {
-            if(isOrder && i === 0) continue;
-            const value = row.cells[i].textContent;
-            let input;
+        async function handleLogin(event) {
+            event.preventDefault();
             
-            if(!isOrder && i === 4) {
-                input = document.createElement('select');
-                ['Produção', 'Parada', 'Concluído', 'Pendente'].forEach(opt => {
-                    const o = document.createElement('option');
-                    o.value = opt;
-                    o.textContent = opt;
-                    o.selected = value.includes(opt);
-                    input.appendChild(o);
+            const cpf = document.getElementById('cpf').value;
+            const senha = document.getElementById('senha').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            
+            if (!cpf || !senha) {
+                showMessage('❌ Preencha todos os campos!', 'error');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ cpf, senha })
                 });
-            } else if(!isOrder && i === 5) {
-                input = document.createElement('select');
-                ['Corte Laser', 'Usinagem', 'Soldagem', 'Montagem'].forEach(opt => {
-                    const o = document.createElement('option');
-                    o.value = opt;
-                    o.textContent = opt;
-                    o.selected = value === opt;
-                    input.appendChild(o);
-                });
-            } else {
-                input = document.createElement('input');
-                input.type = 'text';
-                input.value = value;
-            }
-            input.className = 'input-field';
-            input.style.animation = 'popIn 0.3s ease-out';
-            row.cells[i].innerHTML = '';
-            row.cells[i].appendChild(input);
-        }
-        
-        const actionCell = row.cells[6];
-        actionCell.innerHTML = '';
-        
-        const saveBtn = document.createElement('button');
-        saveBtn.className = 'btn btn-sm btn-success';
-        saveBtn.textContent = 'Salvar';
-        saveBtn.style.animation = 'slideInLeftFast 0.3s ease-out';
-        saveBtn.onclick = () => {
-            saveBtn.style.animation = 'bounce 0.4s ease-out';
-            finishEdit(row, isOrder);
-        };
-        
-        const cancelBtn = document.createElement('button');
-        cancelBtn.className = 'btn btn-sm btn-warning';
-        cancelBtn.textContent = 'Cancelar';
-        cancelBtn.style.animation = 'slideInLeftFast 0.3s ease-out 0.1s backwards';
-        cancelBtn.onclick = () => {
-            cancelBtn.style.animation = 'shake 0.3s ease-out';
-            cancelEdit(row, isOrder);
-        };
-        
-        actionCell.appendChild(saveBtn);
-        actionCell.appendChild(cancelBtn);
-    }
-
-    function finishEdit(row, isOrder = false) {
-        const max = isOrder ? 4 : 6;
-        const values = [];
-        for(let i = 0; i < max; i++) {
-            const input = row.cells[i].querySelector('input, select');
-            values.push(input.value.trim());
-        }
-        if(values.some(v => !v)) {
-            row.style.animation = 'shake 0.3s ease-out';
-            alert('Preencha todos os campos');
-            return;
-        }
-        row.classList.add('row-saved');
-        row.style.animation = 'highlight 0.6s ease-in-out, bounce 0.6s ease-out';
-        
-        setTimeout(() => {
-            for(let i = 0; i < 6; i++) {
-                row.cells[i].textContent = values[i];
-                row.cells[i].style.animation = 'popIn 0.3s ease-out';
-            }
-            row.dataset.editing = 'false';
-            const actionCell = row.cells[6];
-            actionCell.innerHTML = '';
-            actionCell.appendChild(createRowActions(row, isOrder));
-            row.classList.remove('row-saved');
-            row.style.animation = 'checkmark 0.4s ease-out';
-            if(!isOrder) {
-                updateMonitoringCounts();
-                updateMonitoringDetails(document.getElementById('monitoringArea').value);
-            }
-            if(isOrder) updateOrderStats();
-        }, 300);
-    }
-
-    function cancelEdit(row, isOrder = false) {
-        row.classList.add('fade-out');
-        row.style.animation = 'slideOutTopFast 0.2s ease-out';
-        setTimeout(() => {
-            row.classList.remove('fade-out');
-            location.reload();
-        }, 200);
-    }
-
-    function updateOrderSelect() {
-        const ordemSelect = document.getElementById('scanOrdem');
-        if (!ordemSelect) return;
-
-        const currentValue = ordemSelect.value;
-        ordemSelect.innerHTML = '<option value="">Selecione uma ordem</option>';
-
-        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
-        rows.forEach(row => {
-            const op = row.cells[0].textContent;
-            const cliente = row.cells[1].textContent;
-            const marcadas = row.cells[2].textContent;
-            const total = row.cells[3].textContent;
-            const option = document.createElement('option');
-            option.value = op;
-            option.textContent = `${op} - ${cliente} (${marcadas}/${total})`;
-            ordemSelect.appendChild(option);
-        });
-
-        if(currentValue) {
-            ordemSelect.value = currentValue;
-        }
-    }
-
-    function parseQrPayload(text) {
-        const raw = String(text || '').trim();
-        const result = {
-            peca: 'Não informado',
-            codigo: 'Não informado',
-            lote: 'Não informado',
-            data: 'Não informado',
-            status: 'Produção',
-            setor: 'Setor não informado'
-        };
-
-        if(!raw) return result;
-
-        const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-        const normalizedFields = {};
-
-        lines.forEach((line) => {
-            const match = line.match(/^([A-Za-zÀ-ÿ\s]+)\s*:\s*(.+)$/);
-            if(!match) return;
-            const key = match[1].trim().toLowerCase();
-            const value = match[2].trim();
-            if(key.includes('peça')) normalizedFields.peca = value;
-            else if(key.includes('código') || key.includes('codigo')) normalizedFields.codigo = value;
-            else if(key.includes('lote')) normalizedFields.lote = value;
-            else if(key.includes('data')) normalizedFields.data = value;
-            else if(key.includes('status')) normalizedFields.status = value;
-            else if(key.includes('setor') || key.includes('local')) normalizedFields.setor = value;
-        });
-
-        if(normalizedFields.peca) result.peca = normalizedFields.peca;
-        if(normalizedFields.codigo) result.codigo = normalizedFields.codigo;
-        if(normalizedFields.lote) result.lote = normalizedFields.lote;
-        if(normalizedFields.data) result.data = normalizedFields.data;
-        if(normalizedFields.status) result.status = normalizedFields.status;
-        if(normalizedFields.setor) result.setor = normalizedFields.setor;
-
-        return result;
-    }
-
-    function renderReadingSummary(reading, setor) {
-        const summary = document.getElementById('monitoringSummary');
-        summary.style.animation = 'slideInLeftFast 0.3s ease-out';
-        summary.innerHTML = `
-            <strong>Última leitura:</strong>
-            <div class="reading-card">
-                <div class="reading-item"><strong>Peça</strong><span>${reading.peca}</span></div>
-                <div class="reading-item"><strong>Código</strong><span>${reading.codigo}</span></div>
-                <div class="reading-item"><strong>Lote</strong><span>${reading.lote}</span></div>
-                <div class="reading-item"><strong>Data</strong><span>${reading.data}</span></div>
-                <div class="reading-item"><strong>Status</strong><span>${reading.status}</span></div>
-                <div class="reading-item"><strong>Setor</strong><span>${reading.setor || setor}</span></div>
-            </div>`;
-        const detail = document.getElementById('monitoringDetailsContent');
-        detail.innerHTML = `
-            <p><strong>Setor:</strong> ${reading.setor || setor}</p>
-            <p><strong>Peça:</strong> ${reading.peca}</p>
-            <p><strong>Código:</strong> ${reading.codigo}</p>
-            <p><strong>Lote:</strong> ${reading.lote}</p>
-            <p><strong>Data:</strong> ${reading.data}</p>
-            <p><strong>Status:</strong> ${reading.status}</p>
-        `;
-    }
-
-    function addScanEntry(fromQr = false) {
-        const peca = document.getElementById('scanPeca').value.trim();
-        const codigo = document.getElementById('scanCodigo').value.trim();
-        const lote = document.getElementById('scanLote').value.trim();
-        const data = document.getElementById('scanData').value.trim();
-        const status = document.getElementById('scanStatus').value;
-        const setor = document.getElementById('scanSetor').value;
-        const ordem = document.getElementById('scanOrdem')?.value || '';
-
-        if(!codigo || !peca) {
-            if(!fromQr) {
-                document.getElementById('scanCodigo').style.animation = 'shake 0.3s ease-out';
-                alert('Preencha pelo menos Peça e Código');
-            }
-            return;
-        }
-        
-        const row = document.querySelector('#historyTable tbody').insertRow(0);
-        row.style.animation = 'slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        
-        row.insertCell(0).textContent = peca;
-        row.insertCell(1).textContent = codigo;
-        row.insertCell(2).textContent = lote || '—';
-        row.insertCell(3).textContent = data || new Date().toLocaleDateString('pt-BR');
-        row.insertCell(4).textContent = status;
-        row.insertCell(5).textContent = setor;
-        row.insertCell(6).appendChild(createRowActions(row));
-        
-        const reading = { peca, codigo, lote: lote || '—', data: data || new Date().toLocaleDateString('pt-BR'), status, setor };
-        window.lastReadingData = reading;
-        renderReadingSummary(reading, setor);
-        updateMonitoringCounts();
-        updateHistoryTable(setor);
-        updateMonitoringDetails(setor);
-
-        document.getElementById('scanCodigo').value = '';
-        document.getElementById('scanCodigo').style.animation = 'none';
-        document.getElementById('scanPeca').value = '';
-        document.getElementById('scanPeca').style.animation = 'none';
-        document.getElementById('scanLote').value = '';
-        document.getElementById('scanData').value = '';
-        document.getElementById('scanStatus').value = 'Produção';
-        document.getElementById('scanSetor').value = setor;
-        
-        if(ordem) {
-            incrementOrderPieces(ordem);
-        }
-    }
-
-    function incrementOrderPieces(ordem) {
-        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
-        const orderRow = rows.find(row => row.cells[0].textContent === ordem);
-
-        if (!orderRow) return;
-
-        const marcadasCell = orderRow.cells[2];
-        const totalCell = orderRow.cells[3];
-        const progressCell = orderRow.cells[4];
-        
-        const marcadas = parseInt(marcadasCell.textContent) || 0;
-        const total = parseInt(totalCell.textContent) || 0;
-        
-        if (total > 0) {
-            const novasMarcadas = Math.min(marcadas + 1, total);
-            marcadasCell.textContent = novasMarcadas;
-            marcadasCell.style.animation = 'bounce 0.4s ease-out';
-            
-            const percentual = Math.round((novasMarcadas / total) * 100);
-            progressCell.innerHTML = `<div class="progress-bar"><div class="progress-fill" style="width: ${percentual}%"></div></div><span style="font-size: 11px;">${percentual}%</span>`;
-            progressCell.style.animation = 'slideInLeft 0.3s ease-out';
-
-            if (novasMarcadas === total) {
-                updateOrderStatusToConcluded(orderRow);
+                
+                const data = await response.json();
+                
+                if (response.ok && data.sucesso) {
+                    showMessage('✅ ' + data.mensagem, 'success');
+                    
+                    // Guarda as informações obtidas do servidor no navegador do operador
+                    localStorage.setItem('tsea_token', data.token);
+                    localStorage.setItem('tsea_nome_usuario', data.usuarioNome);
+                    
+                    // Redireciona com segurança para a página principal (/index)
+                    setTimeout(() => {
+                        window.location.href = '/index';
+                    }, 1000);
+                } else {
+                    showMessage('❌ ' + (data.mensagem || 'Erro ao fazer login'), 'error');
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                showMessage('❌ Erro ao conectar com o servidor local.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
             }
         }
-    }
-
-    function updateOrderStatusToConcluded(orderRow) {
-        const statusCell = orderRow.cells[5];
-        const statusBadge = statusCell.querySelector('.badge');
-        
-        if (statusBadge && statusBadge.textContent.includes('Em andamento')) {
-            statusCell.innerHTML = '';
-            const newBadge = document.createElement('span');
-            newBadge.className = 'badge';
-            newBadge.textContent = 'Concluída';
-            newBadge.style.background = 'rgba(39, 174, 96, 0.2)';
-            newBadge.style.color = 'var(--success)';
-            newBadge.style.animation = 'popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-            statusCell.appendChild(newBadge);
-            
-            orderRow.style.animation = 'highlight 0.8s ease-in-out, bounce 0.6s ease-out';
-            updateOrderStats();
-        }
-    }
-
-    function generateOP() {
-        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
-        const existingOPs = rows.map(r => r.cells[0].textContent).filter(op => op.startsWith('OP-'));
-        
-        const numbers = existingOPs.map(op => {
-            const num = parseInt(op.replace('OP-', ''));
-            return isNaN(num) ? 0 : num;
-        });
-        
-        const nextNumber = Math.max(0, ...numbers) + 1;
-        
-        return `OP-${nextNumber.toString().padStart(4, '0')}`;
-    }
-
-    function addOrderEntry() {
-        const cliente = document.getElementById('orderCliente').value.trim();
-        const pecas = document.getElementById('orderPecas').value.trim();
-        const status = document.getElementById('orderStatus').value;
-        
-        if(!cliente || !pecas) {
-            document.getElementById('orderCliente').style.animation = 'shake 0.3s ease-out';
-            alert('Preencha Cliente e Total de Peças');
-            return;
-        }
-
-        const op = generateOP();
-        document.getElementById('orderOp').value = op;
-        
-        const row = document.querySelector('#ordersTable tbody').insertRow(0);
-        row.style.animation = 'slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        
-        const opCell = row.insertCell(0);
-        opCell.textContent = op;
-        opCell.style.animation = 'popIn 0.3s ease-out';
-        
-        const clienteCell = row.insertCell(1);
-        clienteCell.textContent = cliente;
-        clienteCell.style.animation = 'popIn 0.3s ease-out 0.05s backwards';
-        
-        const marcadasCell = row.insertCell(2);
-        marcadasCell.textContent = '0';
-        marcadasCell.style.animation = 'popIn 0.3s ease-out 0.1s backwards';
-        
-        const totalCell = row.insertCell(3);
-        totalCell.textContent = pecas;
-        totalCell.style.animation = 'popIn 0.3s ease-out 0.1s backwards';
-        
-        const progressCell = row.insertCell(4);
-        progressCell.innerHTML = '<div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div><span style="font-size: 11px;">0%</span>';
-        progressCell.style.animation = 'popIn 0.3s ease-out 0.15s backwards';
-        
-        const statusCell = row.insertCell(5);
-        const statusBadge = document.createElement('span');
-        statusBadge.className = 'badge';
-        statusBadge.textContent = status;
-        statusBadge.style.animation = 'scaleIn 0.3s ease-out 0.15s backwards';
-        
-        if(status === 'Em andamento') {
-            statusBadge.style.background = 'rgba(243, 156, 18, 0.2)';
-            statusBadge.style.color = '#f39c12';
-        } else if(status === 'Concluída') {
-            statusBadge.style.background = 'rgba(39, 174, 96, 0.2)';
-            statusBadge.style.color = 'var(--success)';
-        } else {
-            statusBadge.style.background = 'rgba(231, 76, 60, 0.2)';
-            statusBadge.style.color = 'var(--warning)';
-        }
-        statusCell.appendChild(statusBadge);
-        
-        const actionsCell = row.insertCell(6);
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'btn btn-sm btn-warning';
-        deleteBtn.textContent = 'Deletar';
-        deleteBtn.style.animation = 'slideInLeftFast 0.3s ease-out 0.2s backwards';
-        deleteBtn.onclick = () => {
-            row.style.animation = 'slideOutTopFast 0.3s ease-out forwards';
-            setTimeout(() => {
-                row.remove();
-                updateOrderStats();
-                updateOrderSelect();
-            }, 300);
-        };
-        actionsCell.appendChild(deleteBtn);
-        
-        document.getElementById('orderCliente').value = '';
-        document.getElementById('orderCliente').style.animation = 'none';
-        document.getElementById('orderPecas').value = '';
-        document.getElementById('orderPecas').style.animation = 'none';
-        
-        updateOrderStats();
-        updateOrderSelect();
-    }
-
-    function updateOrderStats() {
-        const rows = Array.from(document.querySelectorAll('#ordersTable tbody tr'));
-        const total = rows.length;
-        const inProgress = rows.filter(r => r.cells[5].textContent.includes('Em andamento')).length;
-        const completed = rows.filter(r => r.cells[5].textContent.includes('Concluída')).length;
-        const paused = rows.filter(r => r.cells[5].textContent.includes('Pausada')).length;
-        
-        const totalEl = document.getElementById('totalOrders');
-        const inProgressEl = document.getElementById('inProgress');
-        const completedEl = document.getElementById('completed');
-        const pausedEl = document.getElementById('paused');
-        
-        if(totalEl) {
-            totalEl.style.animation = 'bounce 0.4s ease-out';
-            totalEl.textContent = total;
-        }
-        if(inProgressEl) {
-            inProgressEl.style.animation = 'bounce 0.4s ease-out';
-            inProgressEl.textContent = inProgress;
-        }
-        if(completedEl) {
-            completedEl.style.animation = 'bounce 0.4s ease-out';
-            completedEl.textContent = completed;
-        }
-        if(pausedEl) {
-            pausedEl.style.animation = 'bounce 0.4s ease-out';
-            pausedEl.textContent = paused;
-        }
-    }
-
-    function toggleDetails() {
-        const details = document.getElementById('monitoringDetails');
-        const isActive = details.classList.contains('active');
-        details.style.animation = isActive ? 'shrinkHeight 0.3s ease-out' : 'expandHeight 0.3s ease-out';
-        setTimeout(() => {
-            details.classList.toggle('active');
-        }, 150);
-    }
-
-    function detectDeviceType() {
-        const width = window.innerWidth;
-        const ua = navigator.userAgent || navigator.vendor || window.opera;
-        const isMobileAgent = /mobile|android|iphone|ipod|blackberry|iemobile|opera mini/i.test(ua);
-        const isTabletAgent = /ipad|tablet|kindle|silk/i.test(ua);
-
-        if (width <= 600 || isMobileAgent) {
-            return 'Celular';
-        }
-        if (width <= 1024 || isTabletAgent) {
-            return 'Tablet';
-        }
-        return 'PC';
-    }
-
-    function updateDeviceLabel() {
-        const device = detectDeviceType();
-        document.body.classList.remove('celular', 'tablet', 'pc');
-        document.body.classList.add(device.toLowerCase());
-        document.body.setAttribute('data-device', device.toLowerCase());
-    }
-
-    let qrScanner = null;
-    let qrActive = false;
-    let lastQrRead = { text: '', timestamp: 0 };
-
-    function onScanSuccess(text) {
-        if(!qrActive) return;
-        const now = Date.now();
-        if(text === lastQrRead.text && now - lastQrRead.timestamp < 3000) {
-            return;
-        }
-        lastQrRead = { text, timestamp: now };
-        const parsed = parseQrPayload(text);
-
-        const resultDiv = document.getElementById('qr-result');
-        resultDiv.innerHTML = `
-            <strong>${parsed.peca}</strong> · ${parsed.codigo}
-        `;
-        resultDiv.style.animation = 'popIn 0.4s ease-out';
-        
-        document.getElementById('qr-last').textContent = `${parsed.peca} · ${parsed.codigo}`;
-        document.getElementById('qr-last').style.animation = 'bounce 0.4s ease-out';
-        
-        document.getElementById('scanPeca').value = parsed.peca;
-        document.getElementById('scanCodigo').value = parsed.codigo;
-        document.getElementById('scanLote').value = parsed.lote;
-        document.getElementById('scanData').value = parsed.data;
-        document.getElementById('scanStatus').value = parsed.status || 'Produção';
-        document.getElementById('scanSetor').value = parsed.setor.includes('Usinagem') ? 'Usinagem' : 'Corte Laser';
-        const setor = document.getElementById('scanSetor').value;
-        document.getElementById('monitoringArea').value = setor;
-        window.lastReadingData = parsed;
-        renderReadingSummary(parsed, setor);
-        addScanEntry(true);
-        openTab(null, 'dashboard');
-        stopQrScanner(true);
-    }
-
-    function startQrScanner() {
-        if(qrActive) return;
-        const readerDiv = document.getElementById('qr-reader');
-        readerDiv.style.animation = 'popIn 0.4s ease-out';
-        qrScanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 }, false);
-        qrScanner.render(onScanSuccess, () => {});
-        qrActive = true;
-    }
-
-    function stopQrScanner(fromSuccess = false) {
-        if(!qrScanner) return;
-        qrActive = false;
-        const readerDiv = document.getElementById('qr-reader');
-        if(!fromSuccess) {
-            readerDiv.style.animation = 'slideOutTopFast 0.3s ease-out forwards';
-        }
-        qrScanner.clear().then(() => {
-            qrScanner = null;
-            if(!fromSuccess) {
-                document.getElementById('qr-result').style.animation = 'fadeOut 0.3s ease-out';
-                setTimeout(() => {
-                    document.getElementById('qr-result').textContent = '';
-                }, 300);
-            }
-        }).catch(e => console.warn(e));
-    }
-
-    function toggleTheme() {
-        document.body.classList.toggle('dark');
-        const toggle = document.getElementById('themeToggle');
-        toggle.classList.add('rotating');
-        toggle.textContent = document.body.classList.contains('dark') ? '🌙' : '☀️';
-        setTimeout(() => toggle.classList.remove('rotating'), 600);
-    }
-
-    // Sistema de Autenticação
-    document.addEventListener('DOMContentLoaded', () => {
-        const token = localStorage.getItem('tsea_token');
-        const nomeUsuario = localStorage.getItem('tsea_nome_usuario');
-
-        if (!token) {
-            alert('Acesso negado! Por favor, faça login para acessar o sistema.');
-            window.location.href = '/';
-            return;
-        }
-
-        const nomeElement = document.getElementById('nomeUsuario');
-        if (nomeElement) {
-            nomeElement.textContent = nomeUsuario || 'Usuário';
-        }
-
-        selectMonitoringArea('Corte Laser');
-        updateMonitoringCounts();
-        updateHistoryTable();
-        updateDeviceLabel();
-        updateOrderStats();
-        updateOrderSelect();
-        window.addEventListener('resize', updateDeviceLabel);
-        document.querySelectorAll('h2, h3').forEach((el, i) => {
-            el.style.animation = `slideInLeft 0.4s ease-out ${i * 0.1}s backwards`;
-        });
-    });
-    function fazerLogout() {
-        if (confirm('Tem certeza que deseja sair?')) {
-            localStorage.removeItem('tsea_token');
-            localStorage.removeItem('tsea_nome_usuario');
-            window.location.href = '/';
-        }
-    }
-</script>
-
+    </script>
 </body>
 </html>
