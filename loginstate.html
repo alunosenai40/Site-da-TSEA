@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - TrackMetal</title>
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --warning: #e74c3c; --bg: #ffffff; --light: #ecf0f1; --border: #bdc3c7; --text: #2c3e50; }
+        .dark { --primary: #ecf0f1; --accent: #3498db; --success: #2ecc71; --warning: #e74c3c; --bg: #1a1a1a; --light: #2d2d2d; --border: #404040; --text: #ecf0f1; }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { font-size: 16px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        
+        .login-container { max-width: 420px; width: 100%; animation: slideInUp 0.4s ease-out; }
+        
+        .login-card { background: var(--light); padding: 40px 30px; border-radius: 8px; border: 1px solid rgba(52, 152, 219, 0.2); box-shadow: 0 4px 20px rgba(44, 62, 80, 0.1); }
+        
+        .logo-section { text-align: center; margin-bottom: 30px; animation: slideInDown 0.4s ease-out; }
+        .logo-section h1 { font-size: 32px; color: var(--accent); margin-bottom: 5px; }
+        .logo-section p { font-size: 13px; color: rgba(44, 62, 80, 0.6); }
+        
+        h2 { font-size: 24px; margin-bottom: 25px; color: var(--primary); text-align: center; animation: slideInTopFast 0.4s ease-out; }
+        
+        .theme-toggle { position: fixed; top: 15px; right: 15px; font-size: 18px; cursor: pointer; background: var(--light); border: 1px solid var(--border); border-radius: 4px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; animation: slideInRight 0.4s ease-out; z-index: 100; }
+        .theme-toggle:hover { background: var(--accent); color: white; transform: scale(1.1); }
+        
+        .form-group { margin-bottom: 20px; animation: slideInUp 0.4s ease-out; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--primary); margin-bottom: 8px; }
+        
+        input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-size: 14px; font-family: inherit; transition: all 0.3s ease; }
+        input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15); }
+        input::placeholder { color: rgba(44, 62, 80, 0.5); }
+        
+        .message-box { padding: 12px 14px; border-radius: 4px; margin-bottom: 20px; font-size: 13px; display: none; animation: slideInDown 0.3s ease-out; }
+        .message-box.error { background: rgba(231, 76, 60, 0.15); color: #c0392b; border: 1px solid rgba(231, 76, 60, 0.3); border-left: 3px solid #e74c3c; }
+        .message-box.success { background: rgba(39, 174, 96, 0.15); color: #27ae60; border: 1px solid rgba(39, 174, 96, 0.3); border-left: 3px solid #27ae60; }
+        .message-box.show { display: block; }
+        
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 4px; background: var(--accent); color: white; cursor: pointer; font-weight: 600; transition: all 0.3s ease; font-size: 14px; margin-top: 10px; animation: slideInUp 0.5s ease-out; }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        .btn-secondary { background: var(--border); color: var(--primary); margin-top: 8px; }
+        .btn-secondary:hover { background: rgba(52, 152, 219, 0.1); box-shadow: 0 6px 12px rgba(189, 195, 199, 0.2); }
+        
+        .register-link { text-align: center; margin-top: 20px; font-size: 13px; animation: slideInUp 0.6s ease-out; }
+        .register-link a { color: var(--accent); text-decoration: none; font-weight: 600; }
+        .register-link a:hover { text-decoration: underline; }
+        
+        .loading { display: none; text-align: center; margin-top: 15px; }
+        .spinner { border: 2px solid rgba(52, 152, 219, 0.2); border-top: 2px solid var(--accent); border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; margin: 0 auto; }
+        
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInTopFast { 0% { opacity: 0; transform: translateY(-15px); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .dark .login-card { background: var(--light); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">🌙</div>
+    
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-section">
+                <h1>🏭 TrackMetal</h1>
+                <p>Rastreamento por DataMatrix</p>
+            </div>
+            
+            <h2>Faça Login</h2>
+            
+            <div id="messageBox" class="message-box"></div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="cpf">CPF (Apenas números):</label>
+                    <input type="text" id="cpf" name="cpf" placeholder="00000000000" maxlength="11" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="senha">Senha:</label>
+                    <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+                </div>
+                
+                <button type="submit" class="btn" id="submitBtn">🔓 Entrar</button>
+                <button type="reset" class="btn btn-secondary">↻ Limpar</button>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                </div>
+            </form>
+            
+            <div class="register-link">
+                Não tem uma conta? <a href="/register">Cadastre-se aqui</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showMessage(text, type) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = text;
+            messageBox.className = `message-box ${type} show`;
+            if (type === 'success') {
+                setTimeout(() => messageBox.classList.remove('show'), 3000);
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const toggleBtn = document.querySelector('.theme-toggle');
+            if (document.body.classList.contains('dark')) {
+                toggleBtn.textContent = '☀️';
+            } else {
+                toggleBtn.textContent = '🌙';
+            }
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const cpf = document.getElementById('cpf').value;
+            const senha = document.getElementById('senha').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            
+            if (!cpf || !senha) {
+                showMessage('❌ Preencha todos os campos!', 'error');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ cpf, senha })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.sucesso) {
+                    showMessage('✅ ' + data.mensagem, 'success');
+                    
+                    // Guarda as informações obtidas do servidor no navegador do operador
+                    localStorage.setItem('tsea_token', data.token);
+                    localStorage.setItem('tsea_nome_usuario', data.usuarioNome);
+                    
+                    // Redireciona com segurança para a página principal (/index)
+                    setTimeout(() => {
+                        window.location.href = '/index';
+                    }, 1000);
+                } else {
+                    showMessage('❌ ' + (data.mensagem || 'Erro ao fazer login'), 'error');
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                showMessage('❌ Erro ao conectar com o servidor local.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
