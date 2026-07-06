@@ -923,25 +923,38 @@
             lote: 'Não informado',
             data: 'Não informado',
             status: 'Produção',
-            setor: 'Setor não informado'
+            setor: 'Setor não informado',
+            empresa: ''
         };
 
         if(!raw) return result;
 
-        const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-        const normalizedFields = {};
+        // Encontra TODAS as ocorrências de rótulos conhecidos (ex: "Peça:", "Código:"),
+        // não importa se vieram em linhas separadas ou tudo em uma linha só.
+        const labelPattern = /(peça|peca|código|codigo|lote|data|status|local|setor|empresa)\s*:\s*/gi;
+        const matches = [...raw.matchAll(labelPattern)];
 
-        lines.forEach((line) => {
-            const match = line.match(/^([A-Za-zÀ-ÿ\s]+)\s*:\s*(.+)$/);
-            if(!match) return;
-            const key = match[1].trim().toLowerCase();
-            const value = match[2].trim();
-            if(key.includes('peça')) normalizedFields.peca = value;
+        if(matches.length === 0) {
+            // Nenhum rótulo reconhecido: trata o conteúdo inteiro como o código da peça
+            result.codigo = raw;
+            return result;
+        }
+
+        const normalizedFields = {};
+        matches.forEach((match, idx) => {
+            const key = match[1].toLowerCase();
+            const startOfValue = match.index + match[0].length;
+            const endOfValue = idx + 1 < matches.length ? matches[idx + 1].index : raw.length;
+            const value = raw.slice(startOfValue, endOfValue).trim().replace(/[;,]+$/, '');
+            if(!value) return;
+
+            if(key.includes('peça') || key.includes('peca')) normalizedFields.peca = value;
             else if(key.includes('código') || key.includes('codigo')) normalizedFields.codigo = value;
             else if(key.includes('lote')) normalizedFields.lote = value;
             else if(key.includes('data')) normalizedFields.data = value;
             else if(key.includes('status')) normalizedFields.status = value;
             else if(key.includes('setor') || key.includes('local')) normalizedFields.setor = value;
+            else if(key.includes('empresa')) normalizedFields.empresa = value;
         });
 
         if(normalizedFields.peca) result.peca = normalizedFields.peca;
@@ -950,6 +963,7 @@
         if(normalizedFields.data) result.data = normalizedFields.data;
         if(normalizedFields.status) result.status = normalizedFields.status;
         if(normalizedFields.setor) result.setor = normalizedFields.setor;
+        if(normalizedFields.empresa) result.empresa = normalizedFields.empresa;
 
         return result;
     }
@@ -1172,7 +1186,17 @@
         document.getElementById('scanLote').value = parsed.lote;
         document.getElementById('scanData').value = parsed.data;
         document.getElementById('scanStatus').value = parsed.status || 'Produção';
-        document.getElementById('scanSetor').value = parsed.setor.includes('Usinagem') ? 'Usinagem' : 'Corte Laser';
+
+        const setoresConhecidos = ['Corte Laser', 'Usinagem', 'Soldagem', 'Montagem'];
+        const setorDetectado = setoresConhecidos.find((s) => parsed.setor.includes(s)) || 'Corte Laser';
+        document.getElementById('scanSetor').value = setorDetectado;
+
+        const empresaSelect = document.getElementById('scanEmpresa');
+        if (empresaSelect && parsed.empresa) {
+            const opcaoExistente = Array.from(empresaSelect.options).find((o) => o.value === parsed.empresa);
+            if (opcaoExistente) empresaSelect.value = parsed.empresa;
+        }
+
         const setor = document.getElementById('scanSetor').value;
         document.getElementById('monitoringArea').value = setor;
         window.lastReadingData = parsed;
