@@ -391,6 +391,31 @@ app.put('/api/datamatrix/:id', async (req, res) => {
     }
 });
 
+app.delete('/api/datamatrix/:id', async (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    const { id } = req.params;
+
+    try {
+        const existentes = await query('SELECT status, ordem FROM datamatrix_leituras WHERE id = ?', [id]);
+        if (existentes.length === 0) {
+            return res.status(404).json({ sucesso: false, mensagem: 'Leitura não encontrada' });
+        }
+
+        const statusAnterior = existentes[0].status;
+        const ordemVinculada = existentes[0].ordem;
+
+        await query('DELETE FROM datamatrix_leituras WHERE id = ?', [id]);
+
+        if (ordemVinculada && statusAnterior === 'Concluído') {
+            await ajustarMarcadasDaOrdem(ordemVinculada, -1);
+        }
+
+        res.json({ sucesso: true, mensagem: 'Leitura excluída com sucesso' });
+    } catch (error) {
+        res.status(500).json({ sucesso: false, mensagem: 'Erro ao excluir leitura: ' + error.message });
+    }
+});
+
 const startServer = () => {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {

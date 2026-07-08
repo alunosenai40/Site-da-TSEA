@@ -813,9 +813,29 @@
             cancelBtn.style.animation = 'shake 0.3s ease-out';
             cancelEdit(row, isOrder);
         };
-        
+
         actionCell.appendChild(saveBtn);
         actionCell.appendChild(cancelBtn);
+
+        if (!isOrder) {
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'btn btn-sm btn-warning';
+            deleteBtn.textContent = 'Deletar';
+            deleteBtn.style.animation = 'slideInLeftFast 0.3s ease-out 0.2s backwards';
+            deleteBtn.onclick = async () => {
+                if (!confirm('Deseja realmente excluir esta leitura?')) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/api/datamatrix/${row.dataset.id}`, { method: 'DELETE' });
+                    const payload = await parseApiResponse(response);
+                    if (!response.ok) throw new Error(payload.mensagem || 'Erro ao excluir leitura');
+                    await loadScansFromDatabase();
+                } catch (error) {
+                    alert(error.message);
+                }
+            };
+            actionCell.appendChild(deleteBtn);
+        }
     }
 
     async function finishEdit(row, isOrder = false) {
